@@ -1,0 +1,224 @@
+@startuml
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor #F5C384
+  HeaderBackgroundColor #F5C384
+  BorderColor #000000
+}
+
+entity "tblAddress7" as tblAddress7 {
+  * **id : integer(10) <<PK>>**
+  --
+  * streetAddress : varchar(255)
+  * ward : varchar(255)
+  * district : varchar(255)
+  * city : varchar(255)
+}
+
+entity "tblMember7" as tblMember7 {
+  * **id : integer(10) <<PK>>**
+  --
+  * username : varchar(255) <<U>>
+  * password : varchar(255)
+  * firstName : varchar(255)
+  o middleName : varchar(255) [N]
+  * lastName : varchar(255)
+  * email : varchar(255)
+  * phone : varchar(20)
+  * role : varchar(20)
+  o note : varchar(255) [N]
+  * //tblAddress7id : integer(10) <<FK>>//
+}
+
+entity "tblCustomer7" as tblCustomer7 {
+  * **//tblMember7id : integer(10) <<PK, FK>>//**
+  --
+  o customerType : varchar(50) [N]
+}
+
+entity "tblEmployee7" as tblEmployee7 {
+  * **//tblMember7id : integer(10) <<PK, FK>>//**
+  --
+  * position : varchar(100)
+  * salary : decimal(15, 2)
+}
+
+entity "tblSupplier7" as tblSupplier7 {
+  * **id : integer(10) <<PK>>**
+  --
+  * name : varchar(255)
+  o taxCode : varchar(50) [N]
+  * phone : varchar(20)
+  o email : varchar(255) [N]
+  * //tblAddress7id : integer(10) <<FK>>//
+}
+
+entity "tblBrand7" as tblBrand7 {
+  * **id : integer(10) <<PK>>**
+  --
+  * name : varchar(255)
+  * country : varchar(255)
+  o description : varchar(255) [N]
+}
+
+entity "tblCategory7" as tblCategory7 {
+  * **id : integer(10) <<PK>>**
+  --
+  * name : varchar(255)
+  o description : varchar(255) [N]
+}
+
+entity "tblProduct7" as tblProduct7 {
+  * **id : integer(10) <<PK>>**
+  --
+  * name : varchar(255)
+  * modelCode : varchar(255)
+  o description : varchar(255) [N]
+  * //tblBrand7id : integer(10) <<FK>>//
+  * //tblCategory7id : integer(10) <<FK>>//
+}
+
+entity "tblVariant7" as tblVariant7 {
+  * **id : integer(10) <<PK>>**
+  --
+  * sku : varchar(100) <<U>>
+  * name : varchar(255)
+  * price : decimal(15, 2)
+  * warrantyMonths : integer(10)
+  * status : varchar(50)
+  * quantity : integer(10)
+  * reservedQuantity : integer(10)
+  o imageUrl : varchar(500) [N]
+  * //tblProduct7id : integer(10) <<FK>>//
+}
+
+entity "tblSpecification7" as tblSpecification7 {
+  * **id : integer(10) <<PK>>**
+  --
+  * name : varchar(255)
+  o unit : varchar(255) [N]
+}
+
+entity "tblCategorySpecification7" as tblCategorySpecification7 {
+  * **id : integer(10) <<PK>>**
+  --
+  * displayOrder : integer(10)
+  * isRequired : tinyint(1)
+  * //tblSpecification7id : integer(10) <<FK>>//
+  * //tblCategory7id : integer(10) <<FK>>//
+}
+
+entity "tblVariantSpecification7" as tblVariantSpecification7 {
+  * **id : integer(10) <<PK>>**
+  --
+  o specValue : varchar(255) [N]
+  * //tblVariant7id : integer(10) <<FK>>//
+  * //tblSpecification7id : integer(10) <<FK>>//
+}
+
+entity "tblImportRecord7" as tblImportRecord7 {
+  * **id : integer(10) <<PK>>**
+  --
+  * recordCode : varchar(50) <<U>>
+  * importDate : date
+  * totalCost : decimal(15, 2)
+  * //tblSupplier7id : integer(10) <<FK>>//
+  * //tblEmployee7tblMember7id : integer(10) <<FK>>//
+}
+
+entity "tblImportItem7" as tblImportItem7 {
+  * **id : integer(10) <<PK>>**
+  --
+  * quantity : integer(10)
+  * importPrice : decimal(15, 2)
+  * subTotal : decimal(15, 2)
+  * //importRecordId : integer(10) <<FK>>//
+  * //variantId : integer(10) <<FK>>//
+}
+
+entity "tblOrder7" as tblOrder7 {
+  * **id : integer(10) <<PK>>**
+  --
+  * orderCode : varchar(50) <<U>>
+  * orderDate : date
+  o updateAt : date [N]
+  * status : varchar(50)
+  * totalAmount : decimal(15, 2)
+  o //tblCustomer7tblMember7id : integer(10) [N] <<FK>>//
+}
+
+entity "tblOrderOnline7" as tblOrderOnline7 {
+  * **//tblOrder7id : integer(10) <<PK, FK>>//**
+  --
+  * receiverName : varchar(255)
+  o receiverEmail : varchar(255) [N]
+  * receiverPhone : varchar(20)
+  * shippingFee : decimal(15, 2)
+  o note : varchar(255) [N]
+  * //tblAddress7id : integer(10) <<FK>>//
+  o //tblEmployee7tblMember7id : integer(10) [N] <<FK>>//
+}
+
+entity "tblInstoreOrder7" as tblInstoreOrder7 {
+  * **//tblOrder7id : integer(10) <<PK, FK>>//**
+  --
+  o buyerName : varchar(255) [N]
+  o buyerPhone : varchar(255) [N]
+  * //tblEmployee7tblMember7id : integer(10) <<FK>>//
+}
+
+entity "tblOrderItem7" as tblOrderItem7 {
+  * **id : integer(10) <<PK>>**
+  --
+  * quantity : integer(10)
+  * unitPrice : decimal(15, 2)
+  * subTotal : decimal(15, 2)
+  * //tblOrder7id : integer(10) <<FK>>//
+  * //tblVariant7id : integer(10) <<FK>>//
+}
+
+entity "tblInvoice7" as tblInvoice7 {
+  * **id : integer(10) <<PK>>**
+  --
+  * invoiceCode : varchar(50) <<U>>
+  * createdDate : date
+  * totalAmount : decimal(15, 2)
+  * //tblOrder7id : integer(10) <<FK>>//
+}
+
+' Relationships
+tblAddress7 ||..o{ tblMember7
+tblAddress7 ||..o{ tblSupplier7
+tblAddress7 ||..o{ tblOrderOnline7
+
+tblMember7 ||--|o tblCustomer7
+tblMember7 ||--|o tblEmployee7
+
+tblSupplier7 ||..o{ tblImportRecord7
+tblEmployee7 ||..o{ tblImportRecord7
+tblEmployee7 |o..o{ tblOrderOnline7
+tblEmployee7 ||..o{ tblInstoreOrder7
+
+tblCustomer7 |o..o{ tblOrder7
+
+tblOrder7 ||--|o tblOrderOnline7
+tblOrder7 ||--|o tblInstoreOrder7
+tblOrder7 ||..o{ tblOrderItem7
+tblOrder7 ||..|o tblInvoice7
+
+tblImportRecord7 ||..o{ tblImportItem7
+tblVariant7 ||..o{ tblImportItem7
+tblVariant7 ||..o{ tblOrderItem7
+
+tblBrand7 ||..o{ tblProduct7
+tblCategory7 ||..o{ tblProduct7
+tblCategory7 ||..o{ tblCategorySpecification7
+tblSpecification7 ||..o{ tblCategorySpecification7
+tblSpecification7 ||..o{ tblVariantSpecification7
+tblProduct7 ||..o{ tblVariant7
+tblVariant7 ||..o{ tblVariantSpecification7
+@enduml

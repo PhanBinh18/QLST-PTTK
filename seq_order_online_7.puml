@@ -1,0 +1,157 @@
+@startuml
+autonumber
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam sequence {
+  ActorBorderColor #000000
+  ActorBackgroundColor #7BD3F7
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #7BD3F7
+  LifeLineBorderColor #000000
+  LifeLineBackgroundColor #7BD3F7
+  ArrowColor #000000
+}
+
+actor Customer7
+boundary CustomerHomeUI7
+boundary SearchResultUI7
+boundary ItemDetailUI7
+boundary CheckOutUI7
+boundary OrderConfirmUI7
+control VariantDAO7
+control BrandDAO7
+control ProductDAO7
+control InventoryDAO7
+control OrderDAO7
+entity Variant7
+entity VariantSpecification7
+entity Specification7
+entity Brand7
+entity Product7
+entity OrderOnline7
+
+activate Customer7
+
+' 1. Tìm kiếm
+Customer7 -> CustomerHomeUI7 : enter keyword
+activate CustomerHomeUI7
+CustomerHomeUI7 -> SearchResultUI7 : call
+deactivate CustomerHomeUI7
+activate SearchResultUI7
+
+SearchResultUI7 -> VariantDAO7 : call
+activate VariantDAO7
+VariantDAO7 -> VariantDAO7 : searchVariant(keyword, 0, 0, status)
+VariantDAO7 -> Variant7 : call
+activate Variant7
+Variant7 -> Variant7 : Variant()
+Variant7 --> VariantDAO7 : return
+deactivate Variant7
+VariantDAO7 --> SearchResultUI7 : return
+deactivate VariantDAO7
+
+SearchResultUI7 --> Customer7 : display
+
+' 2. Xem chi tiết
+Customer7 -> SearchResultUI7 : click View detail
+SearchResultUI7 -> ItemDetailUI7 : call
+deactivate SearchResultUI7
+activate ItemDetailUI7
+
+ItemDetailUI7 -> VariantDAO7 : call
+activate VariantDAO7
+VariantDAO7 -> VariantDAO7 : getVariantDetail(variantId)
+VariantDAO7 -> Variant7 : call
+activate Variant7
+Variant7 -> Variant7 : Variant()
+Variant7 -> VariantSpecification7 : call
+activate VariantSpecification7
+VariantSpecification7 -> VariantSpecification7 : VariantSpecification()
+VariantSpecification7 -> Specification7 : call
+activate Specification7
+Specification7 -> Specification7 : Specification()
+Specification7 --> VariantSpecification7 : return
+deactivate Specification7
+VariantSpecification7 --> Variant7 : return
+deactivate VariantSpecification7
+Variant7 --> VariantDAO7 : return
+deactivate Variant7
+VariantDAO7 --> ItemDetailUI7 : return
+deactivate VariantDAO7
+
+ItemDetailUI7 -> BrandDAO7 : call
+activate BrandDAO7
+BrandDAO7 -> BrandDAO7 : getBrandByVariantId()
+BrandDAO7 -> Brand7 : call
+activate Brand7
+Brand7 -> Brand7 : Brand()
+Brand7 --> BrandDAO7 : return
+deactivate Brand7
+BrandDAO7 --> ItemDetailUI7 : return
+deactivate BrandDAO7
+
+ItemDetailUI7 -> ProductDAO7 : call
+activate ProductDAO7
+ProductDAO7 -> ProductDAO7 : getProductByVariantId()
+ProductDAO7 -> Product7 : call
+activate Product7
+Product7 -> Product7 : Product()
+Product7 -> Variant7 : call
+activate Variant7
+Variant7 -> Variant7 : Variant()
+Variant7 --> Product7 : return
+deactivate Variant7
+Product7 --> ProductDAO7 : return
+deactivate Product7
+ProductDAO7 --> ItemDetailUI7 : return
+deactivate ProductDAO7
+
+ItemDetailUI7 --> Customer7 : display
+
+' 3. Thêm vào giỏ và thanh toán
+Customer7 -> ItemDetailUI7 : click add to cart
+ItemDetailUI7 -> ItemDetailUI7 : addToCart() (create orderItem)
+ItemDetailUI7 --> Customer7 : display
+
+Customer7 -> ItemDetailUI7 : click cart
+ItemDetailUI7 -> CheckOutUI7 : call
+deactivate ItemDetailUI7
+activate CheckOutUI7
+
+CheckOutUI7 --> Customer7 : display
+
+Customer7 -> CheckOutUI7 : enter info and click place order
+CheckOutUI7 -> InventoryDAO7 : call
+activate InventoryDAO7
+InventoryDAO7 -> InventoryDAO7 : checkStockAvailability()
+InventoryDAO7 --> CheckOutUI7 : return true
+deactivate InventoryDAO7
+
+CheckOutUI7 -> OrderOnline7 : call
+activate OrderOnline7
+OrderOnline7 -> OrderOnline7 : set order att()
+OrderOnline7 --> CheckOutUI7 : return
+deactivate OrderOnline7
+
+CheckOutUI7 -> OrderDAO7 : call
+activate OrderDAO7
+OrderDAO7 -> OrderDAO7 : createOrder()
+OrderDAO7 --> CheckOutUI7 : return
+deactivate OrderDAO7
+
+loop
+  CheckOutUI7 -> InventoryDAO7 : call
+  activate InventoryDAO7
+  InventoryDAO7 -> InventoryDAO7 : updateStockAvailability()
+  InventoryDAO7 --> CheckOutUI7 : return true
+  deactivate InventoryDAO7
+end
+
+CheckOutUI7 -> OrderConfirmUI7 : clear cart and call
+deactivate CheckOutUI7
+activate OrderConfirmUI7
+OrderConfirmUI7 --> Customer7 : display order confirm
+deactivate OrderConfirmUI7
+
+@enduml

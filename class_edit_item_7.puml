@@ -1,0 +1,169 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor #7BD3F7
+  HeaderBackgroundColor #7BD3F7
+  BorderColor #000000
+}
+
+' ================= UI LAYER =================
+class WarehouseHomeUI7 {
+  -subManageItem : Submit
+}
+
+class ItemManagementUI7 {
+  -inSearchName : Text
+  -inCategoryFilter : Select
+  -inBrandFilter : Select
+  -inStatusFilter : Select
+  -subSearch : Submit
+  -subReset : Submit
+  -subAddNewItem : Submit
+  -outItemList : Table
+  -outItemCount : Label
+  -subEditItem : Submit[]
+}
+
+class EditItemUI7 {
+  -outSku : Label
+  -inoutProductName : Text
+  -inoutModelCode : Text
+  -inoutDescription : TextArea
+  -inoutVariantName : Text
+  -inoutPrice : Text
+  -inoutWarrantyMonths : Text
+  -inoutStatus : Select
+  -inoutSpecifications : Table
+  -subSave : Submit
+  -subCancel : Submit
+  -resultMessage : String
+}
+
+' ================= DAO LAYER =================
+class DAO {
+  -con : Connection
+  +DAO()
+}
+
+class BrandDAO7 {
+  +getAllBrand() : Brand7[]
+  +getBrandByVariantId(variantId : int) : Brand7
+}
+
+class ProductDAO7 {
+  +getProductByVariantId(variantId : int) : Product7
+  +updateProduct(product : Product7) : boolean
+}
+
+class CategoryDAO7 {
+  +getAllCategories() : Category7[]
+  +getCategoryByVariantId(variantId : int) : Category7
+  +getSpecificationsByCategoryId(categoryId : int) : CategorySpecification7[]
+}
+
+class VariantDAO7 {
+  +searchVariant(name : String, categoryId : int, brandId : int, status : String) : Variant7[]
+  +getVariantDetail(variantId : int) : Variant7
+  +updateVariant(variant : Variant7) : boolean
+}
+
+' ================= ENTITY LAYER =================
+class Brand7 {
+  -id : Int
+  -name : String
+  -country : String
+  -description : String
+  -products : Product7[]
+}
+
+class Product7 {
+  -id : Int
+  -name : String
+  -modelCode : String
+  -description : String
+  -variants : Variant7[]
+}
+
+class Category7 {
+  -id : Int
+  -name : String
+  -description : String
+  -products : Product7[]
+  -categorySpec : CategorySpecification7[]
+}
+
+class CategorySpecification7 {
+  -id : Int
+  -displayOrder : String
+  -isRequired : boolean
+  -spec : Specification7
+}
+
+class Specification7 {
+  -id : Int
+  -name : String
+  -unit : String
+}
+
+class Variant7 {
+  -id : Int
+  -sku : String
+  -name : String
+  -price : Float
+  -warrantyMonths : int
+  -status : String
+  -imageUrl : String
+  -inventory : Inventory7
+  -variantSpec : VariantSpecification7[]
+}
+
+class VariantSpecification7 {
+  -id : Int
+  -specValue : String
+  -spec : Specification7
+}
+
+class Inventory7 {
+  -id : Int
+  -quantity : Int
+  -reservedQuantity : Int
+}
+
+' UI Relationships
+WarehouseHomeUI7 -- ItemManagementUI7
+ItemManagementUI7 -- EditItemUI7
+
+ItemManagementUI7 -- BrandDAO7
+ItemManagementUI7 -- CategoryDAO7
+ItemManagementUI7 -- VariantDAO7
+
+EditItemUI7 -- BrandDAO7
+EditItemUI7 -- ProductDAO7
+EditItemUI7 -- CategoryDAO7
+EditItemUI7 -- VariantDAO7
+
+' DAO Inheritance
+DAO <|-- BrandDAO7
+DAO <|-- ProductDAO7
+DAO <|-- CategoryDAO7
+DAO <|-- VariantDAO7
+
+' DAO to Entity associations
+BrandDAO7 -- Brand7
+ProductDAO7 -- Product7
+CategoryDAO7 -- Category7
+VariantDAO7 -- Variant7
+
+' Entity associations
+Brand7 o-- Product7
+Category7 o-- Product7
+Category7 o-- CategorySpecification7
+CategorySpecification7 o-- Specification7
+Product7 o-- Variant7
+Variant7 *-- Inventory7
+Variant7 o-- VariantSpecification7
+VariantSpecification7 o-- Specification7
+@enduml

@@ -1,0 +1,68 @@
+@startuml
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #222222
+  FontName "Segoe UI", Arial
+  FontSize 12
+  ArrowColor #0055AA
+}
+skinparam partition {
+  BorderColor #555555
+  BackgroundColor #F4F7FB
+  FontSize 13
+  FontStyle bold
+}
+
+title BIỂU ĐỒ THIẾT KẾ HOẠT ĐỘNG - MODUL ĐẶT HÀNG TRỰC TUYẾN (ORDER ONLINE 7)
+
+(*) --> "Nhận thông tin KH"
+
+partition "Xử lí tại CustomerHomeUI7" {
+  "Nhận thông tin KH" --> "Hiển thị GD trang chủ"
+  "Hiển thị GD trang chủ" --> "Nhận từ khóa tìm kiếm (inKeyword)"
+}
+
+"Nhận từ khóa tìm kiếm (inKeyword)" --> [click tìm kiếm] "Nhận từ khóa tìm kiếm"
+
+partition "Xử lí tại SearchResultUI7" {
+  "Nhận từ khóa tìm kiếm" --> "Gửi yêu cầu tìm mặt hàng"
+  "Nhận danh sách mặt hàng" --> "Hiển thị GD danh sách kết quả (outsubItemList)"
+}
+
+"Gửi yêu cầu tìm mặt hàng" --> "VariantDAO7:\nsearchVariantByName(keyword: String)"
+"VariantDAO7:\nsearchVariantByName(keyword: String)" --> [lấy xong dữ liệu] "Nhận danh sách mặt hàng"
+
+"Hiển thị GD danh sách kết quả (outsubItemList)" --> [click 1 mặt hàng] "Nhận mặt hàng đã chọn"
+
+partition "Xử lí tại ItemDetailUI7" {
+  "Nhận mặt hàng đã chọn" --> "Gửi yêu cầu lấy chi tiết"
+  "Nhận chi tiết mặt hàng" --> "Hiển thị GD chi tiết mặt hàng\n(outGeneralInfo, outSpecifications...)"
+}
+
+"Gửi yêu cầu lấy chi tiết" --> "VariantDAO7:\ngetVariantDetail(variantId: int)"
+"VariantDAO7:\ngetVariantDetail(variantId: int)" --> [lấy xong dữ liệu] "Nhận chi tiết mặt hàng"
+
+"Hiển thị GD chi tiết mặt hàng\n(outGeneralInfo, outSpecifications...)" --> [click Mua ngay] "Khởi tạo giỏ hàng"
+
+partition "Xử lí tại CheckoutUI7" {
+  "Khởi tạo giỏ hàng" --> "Hiển thị GD giỏ hàng (outCartItems)"
+  "Hiển thị GD giỏ hàng (outCartItems)" --> "Nhận số lượng đặt (inoutQuantity)"
+  "Nhận số lượng đặt (inoutQuantity)" --> "Gửi yêu cầu kiểm tra tồn kho"
+  "Cập nhật số lượng & tổng tiền (outCostSummary)" --> "Nhận thông tin người nhận & địa chỉ\n(inReceiverInfo, inShippingAddress)"
+  "Nhận thông tin người nhận & địa chỉ\n(inReceiverInfo, inShippingAddress)" --> "Gửi yêu cầu đặt hàng"
+}
+
+"Gửi yêu cầu kiểm tra tồn kho" --> "InventoryDAO7:\ncheckStockAvailability(variantId: int, quantity: int)"
+"InventoryDAO7:\ncheckStockAvailability(variantId: int, quantity: int)" --> [đủ tồn kho] "Cập nhật số lượng & tổng tiền (outCostSummary)"
+
+"Gửi yêu cầu đặt hàng" --> "OrderDAO7:\ncreateOrder(order: OrderOnline7)"
+"OrderDAO7:\ncreateOrder(order: OrderOnline7)" --> [lưu xong] "Nhận kết quả tạo đơn hàng"
+
+partition "Xử lí tại OrderConfirmationUI7" {
+  "Nhận kết quả tạo đơn hàng" --> "Hiển thị GD xác nhận đơn hàng\n(outSuccessStatus, outOrderDetail)"
+  "Hiển thị GD xác nhận đơn hàng\n(outSuccessStatus, outOrderDetail)" --> "Thông báo đặt hàng thành công"
+}
+
+"Thông báo đặt hàng thành công" --> [click Tiếp tục mua sắm] (*)
+
+@enduml

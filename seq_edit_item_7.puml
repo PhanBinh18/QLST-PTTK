@@ -1,0 +1,191 @@
+@startuml
+autonumber
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam sequence {
+  ActorBorderColor #000000
+  ActorBackgroundColor #7BD3F7
+  ParticipantBorderColor #000000
+  ParticipantBackgroundColor #7BD3F7
+  LifeLineBorderColor #000000
+  LifeLineBackgroundColor #7BD3F7
+  ArrowColor #000000
+}
+
+actor WarehouseStaff7
+boundary WarehouseHomeUI7
+boundary ItemManagementUI7
+boundary EditItemUI7
+control CategoryDAO7
+control BrandDAO7
+control ProductDAO7
+control VariantDAO7
+entity Category7
+entity Brand7
+entity CategorySpecification7
+entity Product7
+entity Variant7
+entity VariantSpecification7
+entity Specification7
+
+activate WarehouseStaff7
+
+' 1. Mở màn hình Quản lý mặt hàng
+WarehouseStaff7 -> WarehouseHomeUI7 : click manage item
+activate WarehouseHomeUI7
+WarehouseHomeUI7 -> ItemManagementUI7 : call
+deactivate WarehouseHomeUI7
+activate ItemManagementUI7
+
+ItemManagementUI7 -> CategoryDAO7 : call
+activate CategoryDAO7
+CategoryDAO7 -> CategoryDAO7 : getAllCategories()
+CategoryDAO7 -> Category7 : call
+activate Category7
+Category7 -> Category7 : Category()
+Category7 --> CategoryDAO7 : return Category[]
+deactivate Category7
+CategoryDAO7 --> ItemManagementUI7 : return category list
+deactivate CategoryDAO7
+
+ItemManagementUI7 -> BrandDAO7 : call
+activate BrandDAO7
+BrandDAO7 -> BrandDAO7 : getAllBrands()
+BrandDAO7 -> Brand7 : call
+activate Brand7
+Brand7 -> Brand7 : Brand()
+Brand7 --> BrandDAO7 : return Brand[]
+deactivate Brand7
+BrandDAO7 --> ItemManagementUI7 : return brand list
+deactivate BrandDAO7
+
+ItemManagementUI7 -> VariantDAO7 : call
+activate VariantDAO7
+VariantDAO7 -> VariantDAO7 : searchVariant(, 0, 0, )
+VariantDAO7 -> Variant7 : call
+activate Variant7
+Variant7 -> Variant7 : Variant()
+Variant7 --> VariantDAO7 : return Variant[]
+deactivate Variant7
+VariantDAO7 --> ItemManagementUI7 : return variant list
+deactivate VariantDAO7
+
+ItemManagementUI7 --> WarehouseStaff7 : display Item management UI
+
+' 2. Tìm kiếm / lọc
+WarehouseStaff7 -> ItemManagementUI7 : enter name and click Search
+ItemManagementUI7 -> VariantDAO7 : call
+activate VariantDAO7
+VariantDAO7 -> VariantDAO7 : searchVariant(name, 0, 0, )
+VariantDAO7 -> Variant7 : call
+activate Variant7
+Variant7 -> Variant7 : Variant()
+Variant7 --> VariantDAO7 : return Variant[]
+deactivate Variant7
+VariantDAO7 --> ItemManagementUI7 : return search result
+deactivate VariantDAO7
+
+ItemManagementUI7 --> WarehouseStaff7 : display search result
+
+' 3. Chọn sửa và nạp dữ liệu lên EditItemUI7
+WarehouseStaff7 -> ItemManagementUI7 : click Edit on item row
+ItemManagementUI7 -> EditItemUI7 : call
+deactivate ItemManagementUI7
+activate EditItemUI7
+
+EditItemUI7 -> BrandDAO7 : call
+activate BrandDAO7
+BrandDAO7 -> BrandDAO7 : getBrandByVariantId()
+BrandDAO7 -> Brand7 : call
+activate Brand7
+Brand7 -> Brand7 : Brand()
+Brand7 --> BrandDAO7 : return
+deactivate Brand7
+BrandDAO7 --> EditItemUI7 : return
+deactivate BrandDAO7
+
+EditItemUI7 -> CategoryDAO7 : call
+activate CategoryDAO7
+CategoryDAO7 -> CategoryDAO7 : getCategoryByVariantId()
+CategoryDAO7 -> Category7 : call
+activate Category7
+Category7 -> Category7 : Category()
+Category7 --> CategoryDAO7 : return
+deactivate Category7
+CategoryDAO7 --> EditItemUI7 : return
+deactivate CategoryDAO7
+
+EditItemUI7 -> ProductDAO7 : call
+activate ProductDAO7
+ProductDAO7 -> ProductDAO7 : getProductByVariantId()
+ProductDAO7 -> Product7 : call
+activate Product7
+Product7 -> Product7 : Product()
+Product7 --> ProductDAO7 : return Product
+deactivate Product7
+ProductDAO7 --> EditItemUI7 : return Product
+deactivate ProductDAO7
+
+EditItemUI7 -> VariantDAO7 : call
+activate VariantDAO7
+VariantDAO7 -> VariantDAO7 : getVariantDetail()
+VariantDAO7 -> Variant7 : call
+activate Variant7
+Variant7 -> Variant7 : Variant()
+Variant7 -> VariantSpecification7 : call
+activate VariantSpecification7
+VariantSpecification7 -> VariantSpecification7 : VariantSpecification()
+VariantSpecification7 -> Specification7 : call
+activate Specification7
+Specification7 -> Specification7 : Specification()
+Specification7 --> VariantSpecification7 : return
+deactivate Specification7
+VariantSpecification7 --> Variant7 : return
+deactivate VariantSpecification7
+Variant7 --> VariantDAO7 : return Variant
+deactivate Variant7
+VariantDAO7 --> EditItemUI7 : return Variant
+deactivate VariantDAO7
+
+EditItemUI7 -> CategoryDAO7 : call
+activate CategoryDAO7
+CategoryDAO7 -> CategoryDAO7 : getSpecificationsByCategoryId()
+CategoryDAO7 -> CategorySpecification7 : call
+activate CategorySpecification7
+CategorySpecification7 -> CategorySpecification7 : CategorySpecification()
+CategorySpecification7 -> Specification7 : call
+activate Specification7
+Specification7 -> Specification7 : Specification()
+Specification7 --> CategorySpecification7 : return
+deactivate Specification7
+CategorySpecification7 --> CategoryDAO7 : return
+deactivate CategorySpecification7
+CategoryDAO7 --> EditItemUI7 : return
+deactivate CategoryDAO7
+
+EditItemUI7 --> WarehouseStaff7 : display
+
+' 4. Lưu thay đổi
+WarehouseStaff7 -> EditItemUI7 : edit item info
+EditItemUI7 -> ProductDAO7 : call
+activate ProductDAO7
+ProductDAO7 -> ProductDAO7 : updateProduct()
+ProductDAO7 --> EditItemUI7 : return true
+deactivate ProductDAO7
+
+EditItemUI7 -> VariantDAO7 : call
+activate VariantDAO7
+VariantDAO7 -> VariantDAO7 : updateVariant()
+VariantDAO7 --> EditItemUI7 : return true
+deactivate VariantDAO7
+
+EditItemUI7 --> WarehouseStaff7 : show success message
+WarehouseStaff7 -> EditItemUI7 : click OK
+EditItemUI7 -> ItemManagementUI7 : call (reload data)
+deactivate EditItemUI7
+activate ItemManagementUI7
+ItemManagementUI7 --> WarehouseStaff7 : refresh and display latest data
+deactivate ItemManagementUI7
+
+@enduml

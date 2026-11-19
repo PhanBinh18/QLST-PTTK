@@ -1,0 +1,52 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam node {
+  BackgroundColor #F8FAFC
+  BorderColor #1E293B
+}
+skinparam package {
+  BackgroundColor #FFFFFF
+  BorderColor #1E293B
+}
+
+node "<<device>>\nClient Machine" as client {
+  node "<<executionEnvironment>>\nWeb Browser" as browser {
+  }
+}
+
+node "<<device>>\nWeb Application Server" as webserver {
+  node "<<executionEnvironment>>\nApache Tomcat Server" as tomcat {
+    package "view" {
+      package "thanhvien" {
+      }
+      package "khachhang" {
+      }
+      package "nhanvienkho" {
+      }
+      package "nhanvienbanhang" {
+      }
+      package "quanli" {
+      }
+    }
+    package "dao" {
+    }
+    package "model" {
+    }
+
+    view ..> dao : <<use>>
+    dao ..> model : <<use>>
+  }
+}
+
+node "<<device>>\nDatabase Server" as dbserver {
+  node "<<executionEnvironment>>\nMySQL Server" as mysql {
+    database "qlst_db" {
+    }
+  }
+}
+
+client -right- webserver : <<HTTP/HTTPS>>\nTCP/IP
+webserver -right- dbserver : <<JDBC>>\nTCP/IP
+@enduml

@@ -1,0 +1,250 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor #7BD3F7
+  HeaderBackgroundColor #7BD3F7
+  BorderColor #000000
+}
+
+class Member7 {
+  -id : Int
+  -username : String
+  -password : String
+  -name : FullName7
+  -email : String
+  -phone : String
+  -address : Address7
+  -role : String
+  -note : String
+}
+
+class FullName7 {
+  -firstName : String
+  -middleName : String
+  -lastName : String
+}
+
+class Address7 {
+  -id : Int
+  -streetAddress : String
+  -ward : String
+  -district : String
+  -city : String
+}
+
+class Employee7 {
+  -position : String
+  -salary : Float
+}
+
+class Manager7 {
+}
+
+class WarehouseStaff7 {
+}
+
+class SalesStaff7 {
+}
+
+class Customer7 {
+  -customerType : String
+}
+
+class Supplier7 {
+  -id : Int
+  -name : String
+  -taxCode : String
+  -phone : String
+  -email : String
+  -address : Address7
+}
+
+class SupplierStatistic7 {
+  -period : String
+  -totalImportCount : Int
+  -totalImportValue : Float
+}
+
+class ImportRecord7 {
+  -id : Int
+  -recordCode : String
+  -importDate : Date
+  -totalCost : Float
+  -creator : WarehouseStaff7
+  -supplier : Supplier7
+  -items : ImportItem7[]
+}
+
+class ImportItem7 {
+  -id : Int
+  -quantity : Int
+  -importPrice : Float
+  -subTotal : Float
+  -variant : Variant7
+}
+
+class Order7 {
+  -id : Int
+  -orderCode : String
+  -orderDate : Date
+  -updatedAt : Date
+  -status : String
+  -totalAmount : Float
+  -items : OrderItem7[]
+}
+
+class OrderOnline7 {
+  -receiverName : String
+  -receiverPhone : String
+  -shippingFee : Float
+  -shippingAddress : Address7
+  -customer : Customer7
+  -approver : WarehouseStaff7
+  -note : String
+  -receiverEmail : String
+}
+
+class InstoreOrder7 {
+  -buyerName : String
+  -buyerPhone : String
+  -creator : SalesStaff7
+  -customer : Customer7
+}
+
+class OrderItem7 {
+  -id : Int
+  -quantity : Int
+  -unitPrice : Float
+  -subTotal : Float
+  -variant : Variant7
+}
+
+class Invoice7 {
+  -id : Int
+  -invoiceCode : String
+  -createdDate : Date
+  -totalAmount : Float
+  -order : Order7
+}
+
+class RevenueStatistic7 {
+  -period : String
+  -totalRevenue : Float
+  -totalImportCost : Float
+  -grossProfit : Float
+}
+
+class Brand7 {
+  -id : Int
+  -name : String
+  -country : String
+  -description : String
+  -products : Product7[]
+}
+
+class Category7 {
+  -id : Int
+  -name : String
+  -description : String
+  -categorySpec : CategorySpecification7[]
+  -products : Product7[]
+}
+
+class Product7 {
+  -id : Int
+  -name : String
+  -modelCode : String
+  -description : String
+  -variants : Variant7[]
+}
+
+class Variant7 {
+  -id : Int
+  -sku : String
+  -name : String
+  -price : Float
+  -warrantyMonths : Int
+  -status : String
+  -imageUrl : String
+  -inventory : Inventory7
+  -variantSpec : VariantSpecification7[]
+}
+
+class ItemStatistic7 {
+  -period : String
+  -totalQuantitySold : Int
+  -totalRevenue : Float
+}
+
+class Inventory7 {
+  -id : Int
+  -quantity : Int
+  -reservedQuantity : Int
+}
+
+class Specification7 {
+  -id : Int
+  -name : String
+  -unit : String
+}
+
+class CategorySpecification7 {
+  -id : Int
+  -displayOrder : Int
+  -isRequired : boolean
+  -spec : Specification7
+}
+
+class VariantSpecification7 {
+  -id : Int
+  -specValue : String
+  -spec : Specification7
+}
+
+' Quan hệ kế thừa
+Member7 <|-- Employee7
+Member7 <|-- Customer7
+Employee7 <|-- Manager7
+Employee7 <|-- WarehouseStaff7
+Employee7 <|-- SalesStaff7
+
+Order7 <|-- OrderOnline7
+Order7 <|-- InstoreOrder7
+
+Supplier7 <|-- SupplierStatistic7
+Invoice7 <|-- RevenueStatistic7
+Variant7 <|-- ItemStatistic7
+
+' Quan hệ kết tập / hợp thành
+Member7 o-- FullName7
+Member7 o-- Address7
+Supplier7 o-- Address7
+OrderOnline7 o-- Address7
+OrderOnline7 o-- Customer7
+OrderOnline7 o-- WarehouseStaff7
+
+InstoreOrder7 o-- SalesStaff7
+InstoreOrder7 o-- Customer7
+
+Order7 o-- OrderItem7
+OrderItem7 o-- Variant7
+Invoice7 o-- Order7
+
+ImportRecord7 o-- WarehouseStaff7
+ImportRecord7 o-- Supplier7
+ImportRecord7 o-- ImportItem7
+ImportItem7 o-- Variant7
+
+Brand7 o-- Product7
+Category7 o-- Product7
+Category7 o-- CategorySpecification7
+CategorySpecification7 o-- Specification7
+
+Product7 o-- Variant7
+Variant7 *-- Inventory7
+Variant7 o-- VariantSpecification7
+VariantSpecification7 o-- Specification7
+@enduml

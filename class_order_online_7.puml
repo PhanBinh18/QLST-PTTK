@@ -1,0 +1,272 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor #7BD3F7
+  HeaderBackgroundColor #7BD3F7
+  BorderColor #000000
+}
+
+' ================= UI LAYER =================
+class CustomerHomeUI7 {
+  -inKeyword : Text
+  -subSearch : Submit
+  -customer : Customer7
+}
+
+class SearchResultUI7 {
+  -inKeyword : Text
+  -outItemList : Table
+  -outKeyword : Label
+  -outResultCount : Label
+  -subViewDetail : Submit[]
+  -keyword : String
+  -variantList : Variant7[]
+  -customer : Customer7
+}
+
+class ItemDetailUI7 {
+  -outGeneralInfo : Label
+  -subChooseSize : Link[]
+  -outSpecifications : Table
+  -outHighlightDescription : Label
+  -outProductImage : Image
+  -outStockStatus : Label
+  -subAddToCart : Submit
+  -customer : Customer7
+  -variant : Variant7
+  -product : Product7
+  -subViewCart : Submit
+  -cartItems : OrderItems[]
+}
+
+class CheckoutUI7 {
+  -outCartItems : Table
+  -outItemCount : Label
+  -inoutQuantity : Text[]
+  -subDecreaseQty : Submit[]
+  -subIncreaseQty : Submit[]
+  -subRemoveItem : Submit[]
+  -outCostSummary : Label
+  -inReceiverName : Text
+  -inReceiverPhone : Text
+  -inReceiverEmail : Text
+  -inProvince : Text
+  -inDistrict : Text
+  -inAddressDetail : Text
+  -inDeliveryNote : Text
+  -subSubmitOrder : Submit
+  -customer : Customer7
+  -order : OrderOnline7
+}
+
+class OrderConfirmationUI7 {
+  -outSuccessStatus : Label
+  -outOrderItems : Table
+  -outOrderCode : Label
+  -outOrderStatus : Label
+  -outCostSummary : Label
+  -outReceiverInfo : Label
+  -customer : Customer7
+  -order : OrderOnline7
+}
+
+' ================= DAO LAYER =================
+class DAO {
+  -con : Connection
+  +DAO()
+}
+
+class ProductDAO7 {
+  +getProductByVariantId(variantId : int) : Product7
+}
+
+class VariantDAO7 {
+  +getVariantDetail(variantId : int) : Variant7
+  +getVariantByName(keyword : String) : Variant7[]
+}
+
+class InventoryDAO7 {
+  +checkStockAvailability(variantId : int, quantity : int) : boolean
+  +updateStockAvailability(variantId : int, quantity : int) : boolean
+}
+
+class OrderDAO7 {
+  +createOrder(order : OrderOnline7) : OrderOnline7
+}
+
+class BrandDAO7 {
+  +getAllBrand() : Brand7[]
+  +getBrandByVariantId(variantId : int) : Brand7
+}
+
+' ================= ENTITY LAYER =================
+class Brand7 {
+  -id : Int
+  -name : String
+  -country : String
+  -description : String
+  -products : Product7
+}
+
+class Product7 {
+  -id : Int
+  -name : String
+  -modelCode : String
+  -description : String
+  -variants : Variant7[]
+}
+
+class Category7 {
+  -id : Int
+  -name : String
+  -description : String
+  -categorySpec : CategorySpecification7[]
+  -product : Product7[]
+}
+
+class CategorySpecification7 {
+  -id : Int
+  -displayOrder : Int
+  -isRequired : boolean
+  -spec : Specification7
+}
+
+class Specification7 {
+  -id : Int
+  -name : String
+  -unit : String
+}
+
+class Variant7 {
+  -id : Int
+  -sku : String
+  -name : String
+  -price : Float
+  -warrantyMonths : Int
+  -status : String
+  -imageUrl : String
+  -inventory : Inventory7
+  -variantSpec : VariantSpecification7[]
+}
+
+class VariantSpecification7 {
+  -id : Int
+  -specValue : String
+  -spec : Specification7
+}
+
+class Inventory7 {
+  -id : Int
+  -quantity : Int
+  -reservedQuantity : Int
+}
+
+class OrderItem7 {
+  -id : Int
+  -quantity : Int
+  -unitPrice : Float
+  -subTotal : Float
+  -variant : Variant7[]
+}
+
+class Order7 {
+  -id : Int
+  -orderCode : String
+  -orderDate : Date
+  -status : String
+  -totalAmount : Float
+  -updateAt : Date
+  -items : OrderItem7[]
+}
+
+class OrderOnline7 {
+  -receiverName : String
+  -receiverPhone : String
+  -shippingFee : Float
+  -shippingAddress : Address7
+  -customer : Customer7
+  -approver : WarehouseStaff7
+  -note : String
+  -receiverEmail : String
+}
+
+class Customer7 {
+  -customerType : String
+}
+
+class Member7 {
+  -id : Int
+  -username : String
+  -password : String
+  -email : String
+  -phone : String
+  -address : String
+  -role : String
+  -note : String
+  -name : FullName7
+  -attribute : Address7
+}
+
+class Address7 {
+  -id : Int
+  -streetAddress : String
+  -ward : String
+  -district : String
+  -city : String
+}
+
+class FullName7 {
+  -firstName : String
+  -middleName : String
+  -lastName : String
+}
+
+' UI Flows & DAO Calls
+CustomerHomeUI7 -- SearchResultUI7
+SearchResultUI7 -- ItemDetailUI7
+ItemDetailUI7 -- CheckoutUI7
+CheckoutUI7 -- OrderConfirmationUI7
+
+SearchResultUI7 -- VariantDAO7
+ItemDetailUI7 -- VariantDAO7
+ItemDetailUI7 -- ProductDAO7
+ItemDetailUI7 -- BrandDAO7
+CheckoutUI7 -- InventoryDAO7
+CheckoutUI7 -- OrderDAO7
+
+' DAO Inheritance
+DAO <|-- ProductDAO7
+DAO <|-- VariantDAO7
+DAO <|-- InventoryDAO7
+DAO <|-- OrderDAO7
+DAO <|-- BrandDAO7
+
+' DAO to Entity associations
+ProductDAO7 -- Product7
+VariantDAO7 -- Variant7
+InventoryDAO7 -- Inventory7
+OrderDAO7 -- OrderOnline7
+OrderDAO7 -- Order7
+BrandDAO7 -- Brand7
+
+' Entity associations
+Brand7 o-- Product7
+Category7 o-- Product7
+Category7 o-- CategorySpecification7
+CategorySpecification7 o-- Specification7
+Product7 o-- Variant7
+Variant7 *-- Inventory7
+Variant7 o-- VariantSpecification7
+VariantSpecification7 o-- Specification7
+Variant7 o-- OrderItem7
+Order7 o-- OrderItem7
+Order7 <|-- OrderOnline7
+OrderOnline7 o-- Customer7
+OrderOnline7 o-- Address7
+Member7 <|-- Customer7
+Member7 o-- Address7
+Member7 o-- FullName7
+@enduml

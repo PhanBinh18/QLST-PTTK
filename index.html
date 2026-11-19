@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Siêu Thị Điện Máy Coex - Hệ Thống Bán Hàng & Quản Lý Kho</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ================= TOP SIMULATOR & TEST BAR ================= -->
+  <aside class="simulator-topbar">
+    <div class="sim-info">
+      <span class="sim-badge">B23DCCN087</span>
+      <span>Hệ Thống QLST Điện Máy Coex</span>
+      <span class="sim-ui-class" id="currentUIIndicator">CustomerHomeUI7</span>
+    </div>
+
+    <div class="sim-actions">
+      <!-- Switch Role -->
+      <button class="sim-btn active" id="btnRoleCustomer" onclick="AppUI.setRole('customer')">
+        👤 Khách Hàng (Module 1)
+      </button>
+      <button class="sim-btn" id="btnRoleWarehouse" onclick="AppUI.setRole('warehouse')">
+        📦 Thủ Kho (Module 2)
+      </button>
+
+      <!-- Jump Directly to any UI Class for testing & screenshot taking -->
+      <select class="sim-select" id="viewSelector" onchange="AppUI.showView(this.value)">
+        <optgroup label="Module 1: Đặt hàng trực tuyến">
+          <option value="CustomerHomeUI7">CustomerHomeUI7 (Trang chủ KH)</option>
+          <option value="SearchResultUI7">SearchResultUI7 (Kết quả tìm kiếm)</option>
+          <option value="ItemDetailUI7">ItemDetailUI7 (Chi tiết mặt hàng)</option>
+          <option value="CheckoutUI7">CheckoutUI7 (Giỏ hàng & Đặt hàng)</option>
+          <option value="OrderConfirmationUI7">OrderConfirmationUI7 (Xác nhận đơn)</option>
+        </optgroup>
+        <optgroup label="Module 2: Sửa thông tin mặt hàng">
+          <option value="WarehouseHomeUI7">WarehouseHomeUI7 (Trang chủ Kho)</option>
+          <option value="ItemManagementUI7">ItemManagementUI7 (Quản lý mặt hàng)</option>
+          <option value="EditItemUI7">EditItemUI7 (Chỉnh sửa mặt hàng)</option>
+        </optgroup>
+      </select>
+
+      <button class="sim-btn" id="btnResetDatabase" onclick="AppUI.resetDatabase()" title="Khôi phục dữ liệu mẫu ban đầu">
+        🔄 Reset Data
+      </button>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN APP HEADER (SHOWING LOGGED-IN USER) ================= -->
+  <header class="main-app-header">
+    <div class="header-inner">
+      <div class="header-brand" onclick="AppUI.currentRole === 'customer' ? AppUI.showView('CustomerHomeUI7') : AppUI.showView('WarehouseHomeUI7')">
+        <div class="brand-logo-icon">C</div>
+        <div class="brand-text">
+          <span class="brand-title">COEX MART</span>
+          <span class="brand-slogan">Hệ thống siêu thị điện máy chính hãng</span>
+        </div>
+      </div>
+
+      <!-- Thể hiện trạng thái người dùng đã đăng nhập vào hệ thống -->
+      <div class="header-user-profile">
+        <div class="user-avatar" id="headerAvatar">B</div>
+        <div class="user-details">
+          <span class="user-display-name" id="headerUserName">Bùi Văn Bình</span>
+          <span class="user-role-badge" id="headerUserRole">Khách hàng thành viên</span>
+        </div>
+        <button class="btn-logout" onclick="AppUI.logout()" title="Đăng xuất khỏi hệ thống">Đăng xuất</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTAINER ================= -->
+  <main class="app-container">
+
+    <!-- ================= VIEW 1: CustomerHomeUI7 ================= -->
+    <section id="CustomerHomeUI7" class="ui-view active">
+      <div class="home-search-hero">
+        <h1>Siêu Thị Điện Máy Coex</h1>
+        <p>Tìm kiếm và đặt mua các dòng Tivi, Tủ lạnh, Máy giặt công nghệ mới nhất với bảo hành chính hãng và giao hàng toàn quốc.</p>
+
+        <form class="search-box-standalone" onsubmit="event.preventDefault(); AppUI.handleCustomerSearch();">
+          <input type="text" id="inKeywordHome" placeholder="Nhập tên mặt hàng cần tìm... (Ví dụ: Tivi, Tủ lạnh, Coex)" value="Tivi">
+          <button type="submit" id="subSearchHome">
+            🔍 Tìm kiếm
+          </button>
+        </form>
+
+      </div>
+    </section>
+
+    <!-- ================= VIEW 2: SearchResultUI7 ================= -->
+    <section id="SearchResultUI7" class="ui-view">
+      <nav class="view-breadcrumb">
+        <a onclick="AppUI.showView('CustomerHomeUI7')">Trang chủ</a>
+        <span>›</span>
+        <span>Kết quả tìm kiếm</span>
+      </nav>
+
+      <!-- Thanh tìm kiếm lại (inKeyword, subSearch) -->
+      <div class="search-refine-bar">
+        <input type="text" class="form-control" id="inKeywordResult" placeholder="Nhập từ khóa tìm kiếm khác...">
+        <button class="btn btn-primary" id="subSearchResult" onclick="AppUI.handleResultSearch()">
+          🔍 Tìm kiếm lại
+        </button>
+      </div>
+
+      <div class="page-header">
+        <div>
+          <h2 id="outKeywordHeading">Kết quả tìm kiếm cho: "Tivi"</h2>
+          <div class="subtitle" id="outResultCountText">Tìm thấy 4 mặt hàng phù hợp</div>
+        </div>
+      </div>
+
+      <!-- Lưới danh sách các biến thể mặt hàng (outItemList) -->
+      <div class="product-grid" id="searchResultGrid">
+        <!-- Render động qua JavaScript -->
+      </div>
+    </section>
+
+    <!-- ================= VIEW 3: ItemDetailUI7 ================= -->
+    <section id="ItemDetailUI7" class="ui-view">
+      <nav class="view-breadcrumb">
+        <a onclick="AppUI.showView('CustomerHomeUI7')">Trang chủ</a>
+        <span>›</span>
+        <a onclick="AppUI.showView('SearchResultUI7')">Kết quả tìm kiếm</a>
+        <span>›</span>
+        <span>Chi tiết mặt hàng</span>
+      </nav>
+
+      <div class="item-detail-layout">
+        <!-- Cột trái: Ảnh sản phẩm (outProductImage) -->
+        <div class="detail-img-box">
+          <img id="outProductImage" src="" alt="Mặt hàng">
+        </div>
+
+        <!-- Cột phải: Thông tin chung (outGeneralInfo) -->
+        <div class="detail-info-box">
+          <span class="detail-brand-badge" id="outBrandName">Coex</span>
+          <h1 class="detail-title" id="outVariantName">Google TV Coex 4K UHD 65 inch 65UT7002XG</h1>
+
+          <div class="detail-meta-row">
+            <div>Mã SKU: <strong id="outSku">65UT7002XG</strong></div>
+            <div>Model: <strong id="outModelCode">UT7002XG</strong></div>
+          </div>
+
+          <div class="detail-price-box">
+            <span class="detail-price-val" id="outPrice">12.990.000 đ</span>
+            <span style="color: var(--text-muted); font-size: 0.85rem;">(Đã bao gồm VAT)</span>
+          </div>
+
+          <div class="detail-stock-warranty">
+            <div>🛡️ Bảo hành chính hãng: <strong id="outWarrantyMonths">24 tháng</strong></div>
+            <div>📦 Tình trạng: <span class="badge-status badge-in-stock" id="outStockStatus">Còn hàng (Tồn: 5)</span></div>
+          </div>
+
+          <!-- Lựa chọn kích thước / mẫu mã (subChooseSize) -->
+          <div class="size-selection-area">
+            <label class="size-selection-label">Tùy chọn kích thước liên quan:</label>
+            <div class="size-btn-group" id="outSizeOptionsGroup">
+              <!-- Render động các nút kích thước -->
+            </div>
+          </div>
+
+          <!-- Các nút hành động chính (subAddToCart, subViewCart) -->
+          <div class="detail-actions-row">
+            <button class="btn btn-primary" id="subAddToCart" onclick="AppUI.addToCartFromDetail()">
+              🛒 Thêm vào giỏ hàng
+            </button>
+            <button class="btn btn-secondary" id="subViewCart" onclick="AppUI.showView('CheckoutUI7')">
+              🛍️ Xem giỏ hàng (<span id="cartCountBtnText">0</span>)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Thông số kỹ thuật & Mô tả (outSpecifications, outHighlightDescription) -->
+      <div class="item-bottom-specs">
+        <div class="card" style="margin-bottom: 0;">
+          <h3 style="margin-bottom: 14px; font-size: 1.1rem;">⚙️ Thông số kỹ thuật chi tiết</h3>
+          <table class="specs-table" id="outSpecsTable">
+            <!-- Render động thông số -->
+          </table>
+        </div>
+
+        <div class="card" style="margin-bottom: 0;">
+          <h3 style="margin-bottom: 14px; font-size: 1.1rem;">📝 Mô tả sản phẩm</h3>
+          <p id="outHighlightDescription" style="line-height: 1.7; color: #334155;">
+            Thiết kế tràn viền 3 cạnh tinh tế, hỗ trợ điều khiển tìm kiếm bằng giọng nói tiếng Việt, bộ xử lý hình ảnh tối ưu sắc nét.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 4: CheckoutUI7 ================= -->
+    <section id="CheckoutUI7" class="ui-view">
+      <nav class="view-breadcrumb">
+        <a onclick="AppUI.showView('CustomerHomeUI7')">Trang chủ</a>
+        <span>›</span>
+        <span>Giỏ hàng & Đặt hàng</span>
+      </nav>
+
+      <div class="checkout-grid">
+        <!-- Cột 1: Danh sách mặt hàng đặt mua & Chi phí -->
+        <div class="card" style="margin-bottom: 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h3 style="font-size: 1.15rem;">📦 Sản phẩm đặt mua</h3>
+            <span class="badge-status" style="background:#e0f2fe; color:#0369a1;" id="outItemCountBadge">2 món</span>
+          </div>
+
+          <table class="cart-table">
+            <thead>
+              <tr>
+                <th>Sản phẩm</th>
+                <th>Đơn giá</th>
+                <th style="text-align: center;">Số lượng</th>
+                <th style="text-align: right;">Thành tiền</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="cartTableBody">
+              <!-- Render động danh sách giỏ hàng -->
+            </tbody>
+          </table>
+
+          <!-- Tổng kết chi phí (outCostSummary) -->
+          <div class="cart-cost-summary">
+            <div class="cost-line">
+              <span>Tạm tính tiền hàng:</span>
+              <strong id="costSubtotal">0 đ</strong>
+            </div>
+            <div class="cost-line">
+              <span>Phí vận chuyển tiêu chuẩn:</span>
+              <strong id="costShippingFee">100.000 đ</strong>
+            </div>
+            <div class="cost-line total">
+              <span>Tổng thanh toán:</span>
+              <span id="costTotalAmount">0 đ</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 16px;">
+            <button class="btn btn-secondary btn-sm" onclick="AppUI.showView('CustomerHomeUI7')">
+              ‹ Tiếp tục chọn mua thêm mặt hàng khác
+            </button>
+          </div>
+        </div>
+
+        <!-- Cột 2: Thông tin giao hàng (inReceiverInfo, inShippingAddress) -->
+        <div class="card" style="margin-bottom: 0;">
+          <h3 style="font-size: 1.15rem; margin-bottom: 16px;">👤 Thông tin nhận hàng</h3>
+
+          <div class="form-group">
+            <label>Họ và tên người nhận <span style="color:red">*</span></label>
+            <input type="text" class="form-control" id="inReceiverName" value="Bùi Văn Bình">
+            <div class="form-error" id="errReceiverName">Vui lòng nhập họ tên người nhận</div>
+          </div>
+
+          <div class="form-group">
+            <label>Số điện thoại <span style="color:red">*</span></label>
+            <input type="tel" class="form-control" id="inReceiverPhone" value="0377035460">
+            <div class="form-error" id="errReceiverPhone">Số điện thoại không hợp lệ (10 chữ số)</div>
+          </div>
+
+          <div class="form-group">
+            <label>Email liên hệ</label>
+            <input type="email" class="form-control" id="inReceiverEmail" value="pbinhf@gmail.com">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label>Tỉnh / Thành phố <span style="color:red">*</span></label>
+              <input type="text" class="form-control" id="inProvince" value="Hà Nội">
+            </div>
+            <div class="form-group">
+              <label>Quận / Huyện <span style="color:red">*</span></label>
+              <input type="text" class="form-control" id="inDistrict" value="Nam Từ Liêm">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Địa chỉ chi tiết <span style="color:red">*</span></label>
+            <input type="text" class="form-control" id="inAddressDetail" value="Mỹ Đình, Phường Mỹ Đình 1">
+            <div class="form-error" id="errAddressDetail">Vui lòng nhập địa chỉ cụ thể</div>
+          </div>
+
+          <div class="form-group">
+            <label>Ghi chú giao hàng</label>
+            <input type="text" class="form-control" id="inDeliveryNote" value="Giao giờ hành chính, gọi điện trước">
+          </div>
+
+          <!-- Nút đặt hàng (subSubmitOrder) -->
+          <button class="btn btn-primary" id="subSubmitOrder" style="width: 100%; padding: 14px; font-size: 1.05rem;" onclick="AppUI.handleSubmitOrder()">
+            🛍️ Đặt hàng ngay
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 5: OrderConfirmationUI7 ================= -->
+    <section id="OrderConfirmationUI7" class="ui-view">
+      <div class="card" style="max-width: 760px; margin: 0 auto;">
+        <div class="success-banner-card">
+          <div class="success-icon-badge">✓</div>
+          <h2 style="font-size: 1.6rem; color: var(--success); margin-bottom: 8px;" id="outSuccessStatus">
+            Đặt hàng trực tuyến thành công!
+          </h2>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">
+            Hệ thống siêu thị Coex đã lưu thông tin đơn hàng và cập nhật số lượng tồn kho khả dụng.
+          </p>
+
+          <div class="order-code-highlight">
+            <span>Mã đơn hàng: <strong id="outOrderCode">DH087</strong></span>
+            <span>Trạng thái: <span class="order-status-badge" id="outOrderStatus">Chờ duyệt</span></span>
+          </div>
+        </div>
+
+        <div style="padding: 24px 0; border-bottom: 1px solid var(--border);">
+          <h4 style="margin-bottom: 12px; font-size: 1rem;">📦 Chi tiết đơn hàng</h4>
+          <table class="cart-table" style="margin-bottom: 0;">
+            <thead>
+              <tr>
+                <th>Mặt hàng</th>
+                <th style="text-align: center;">SL</th>
+                <th style="text-align: right;">Đơn giá</th>
+                <th style="text-align: right;">Thành tiền</th>
+              </tr>
+            </thead>
+            <tbody id="confirmOrderItemsTable">
+              <!-- Render động -->
+            </tbody>
+          </table>
+        </div>
+
+        <div style="padding: 20px 0; border-bottom: 1px solid var(--border);">
+          <h4 style="margin-bottom: 12px; font-size: 1rem;">💵 Chi phí thanh toán</h4>
+          <div class="cost-line">
+            <span>Tiền hàng:</span>
+            <span id="confirmSubtotal">0 đ</span>
+          </div>
+          <div class="cost-line">
+            <span>Phí vận chuyển:</span>
+            <span id="confirmShippingFee">100.000 đ</span>
+          </div>
+          <div class="cost-line total" style="margin-top: 8px;">
+            <span>Tổng thanh toán:</span>
+            <span id="confirmTotalAmount">0 đ</span>
+          </div>
+        </div>
+
+        <div style="padding: 20px 0;">
+          <h4 style="margin-bottom: 12px; font-size: 1rem;">👤 Thông tin nhận hàng</h4>
+          <div id="outReceiverInfoText" style="line-height: 1.8; font-size: 0.92rem; color: #334155; background: #f8fafc; padding: 14px 18px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+            <!-- Render động -->
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: center; gap: 12px; margin-top: 16px;">
+          <button class="btn btn-primary" onclick="AppUI.showView('CustomerHomeUI7')">
+            🛒 Tiếp tục mua sắm
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 6: WarehouseHomeUI7 ================= -->
+    <section id="WarehouseHomeUI7" class="ui-view">
+      <div class="page-header">
+        <div>
+          <h2>Bảng Điều Khiển Quản Lý Kho</h2>
+          <div class="subtitle">Giám sát số lượng mặt hàng và quản trị thông tin dòng sản phẩm</div>
+        </div>
+        <button class="btn btn-primary" id="subManageItem" onclick="AppUI.showView('ItemManagementUI7')">
+          ⚙️ Quản lý mặt hàng
+        </button>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 7: ItemManagementUI7 ================= -->
+    <section id="ItemManagementUI7" class="ui-view">
+      <nav class="view-breadcrumb">
+        <a onclick="AppUI.showView('WarehouseHomeUI7')">Trang chủ Kho</a>
+        <span>›</span>
+        <span>Quản lý mặt hàng</span>
+      </nav>
+
+      <div class="page-header">
+        <div>
+          <h2>Quản Lý Danh Sách Mặt Hàng</h2>
+          <div class="subtitle">Tìm kiếm, lọc danh mục và cập nhật đơn giá, thời gian bảo hành</div>
+        </div>
+        <button class="btn btn-secondary btn-sm" id="subAddNewItem" onclick="AppUI.toast('Chức năng thêm mới thuộc phân hệ Quản lý!', 'info')">
+          + Thêm mặt hàng mới
+        </button>
+      </div>
+
+      <!-- Khu vực lọc và tìm kiếm (inSearchName, inCategoryFilter, inBrandFilter, inStatusFilter) -->
+      <div class="filter-card-grid">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Tìm kiếm mặt hàng:</label>
+          <input type="text" class="form-control" id="inSearchName" placeholder="Nhập tên hoặc mã SKU... (vd: 65UT7002XG)">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Danh mục:</label>
+          <select class="form-control" id="inCategoryFilter" onchange="AppUI.renderItemManagementTable()">
+            <option value="Tất cả">[Tất cả danh mục]</option>
+            <option value="Tivi">Tivi</option>
+            <option value="Tủ lạnh">Tủ lạnh</option>
+            <option value="Máy giặt">Máy giặt</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Hãng sản xuất:</label>
+          <select class="form-control" id="inBrandFilter" onchange="AppUI.renderItemManagementTable()">
+            <option value="Tất cả">[Tất cả hãng]</option>
+            <option value="Coex">Coex</option>
+            <option value="Samsung">Samsung</option>
+            <option value="Sony">Sony</option>
+            <option value="Panasonic">Panasonic</option>
+          </select>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 0;">
+          <label>Trạng thái:</label>
+          <select class="form-control" id="inStatusFilter" onchange="AppUI.renderItemManagementTable()">
+            <option value="Tất cả">[Tất cả]</option>
+            <option value="Còn hàng">Còn hàng</option>
+            <option value="Hết hàng">Hết hàng</option>
+            <option value="Ngừng bán">Ngừng bán</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-primary" id="subSearchItem" onclick="AppUI.renderItemManagementTable()">
+            🔍 Tìm
+          </button>
+          <button class="btn btn-secondary" id="subResetFilter" onclick="AppUI.resetItemFilters()">
+            Đặt lại
+          </button>
+        </div>
+      </div>
+
+      <!-- Bảng danh sách mặt hàng (outItemList, outItemCount) -->
+      <div class="data-table-container">
+        <div style="padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #fafafa;">
+          <strong>Danh sách mặt hàng trong kho</strong>
+          <span class="badge-status" style="background:#e2e8f0; color:#334155;" id="outItemCountText">6 mặt hàng</span>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 50px;">TT</th>
+              <th style="width: 140px;">Mã SKU</th>
+              <th>Tên mặt hàng</th>
+              <th>Danh mục</th>
+              <th>Hãng</th>
+              <th>Đơn giá</th>
+              <th style="width: 110px;">Bảo hành</th>
+              <th style="width: 120px;">Trạng thái</th>
+              <th style="width: 100px; text-align: center;">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="itemManagementTableBody">
+            <!-- Render động -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 8: EditItemUI7 ================= -->
+    <section id="EditItemUI7" class="ui-view">
+      <nav class="view-breadcrumb">
+        <a onclick="AppUI.showView('WarehouseHomeUI7')">Trang chủ Kho</a>
+        <span>›</span>
+        <a onclick="AppUI.showView('ItemManagementUI7')">Quản lý mặt hàng</a>
+        <span>›</span>
+        <span>Chỉnh sửa thông tin</span>
+      </nav>
+
+      <div class="card">
+        <h3 style="font-size: 1.25rem; margin-bottom: 18px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+          Chỉnh Sửa Thông Tin Mặt Hàng
+        </h3>
+
+        <!-- Nhóm thông tin chỉ đọc của dòng sản phẩm -->
+        <h4 style="font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 14px; letter-spacing: 0.5px;">
+          🏷️ Thông tin dòng sản phẩm (Chỉ đọc)
+        </h4>
+
+        <div class="edit-form-grid" style="margin-bottom: 24px;">
+          <div class="form-group">
+            <label>Mã SKU mặt hàng</label>
+            <div class="readonly-box" id="editOutSku" style="font-family: monospace; font-weight: 700;">65UT7002XG</div>
+          </div>
+          <div class="form-group">
+            <label>Dòng sản phẩm</label>
+            <div class="readonly-box" id="editProductName">Google TV Coex 4K UHD</div>
+          </div>
+          <div class="form-group">
+            <label>Mã Model chung</label>
+            <div class="readonly-box" id="editModelCode">UT7002XG</div>
+          </div>
+          <div class="form-group">
+            <label>Mô tả dòng sản phẩm</label>
+            <div class="readonly-box" id="editDescription">Thiết kế tràn viền 3 cạnh, hỗ trợ trợ lý Google Assistant.</div>
+          </div>
+        </div>
+
+        <!-- Bảng thông số kỹ thuật (inoutSpecifications) -->
+        <div style="margin-bottom: 24px;">
+          <label style="font-size: 0.88rem; font-weight: 600; margin-bottom: 8px; display: block;">
+            ⚙️ Quy cách thông số kỹ thuật:
+          </label>
+          <table class="specs-table" id="editSpecsTable" style="border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;">
+            <!-- Render động -->
+          </table>
+        </div>
+
+        <!-- Nhóm thông tin biến thể cho phép chỉnh sửa -->
+        <h4 style="font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 14px; letter-spacing: 0.5px;">
+          💰 Thông tin bán hàng cho phép chỉnh sửa
+        </h4>
+
+        <div class="edit-form-grid">
+          <div class="form-group">
+            <label>Tên hiển thị biến thể <span style="color:red">*</span></label>
+            <input type="text" class="form-control" id="editVariantName">
+          </div>
+
+          <div class="form-group">
+            <label>Đơn giá niêm yết (VNĐ) <span style="color:red">*</span></label>
+            <input type="number" class="form-control" id="editPrice" step="10000">
+            <div class="form-error" id="errEditPrice">Đơn giá phải là số lớn hơn 0</div>
+          </div>
+
+          <div class="form-group">
+            <label>Thời gian bảo hành (tháng) <span style="color:red">*</span></label>
+            <input type="number" class="form-control" id="editWarrantyMonths" min="1">
+            <div class="form-error" id="errEditWarranty">Thời gian bảo hành phải lớn hơn 0</div>
+          </div>
+
+          <div class="form-group">
+            <label>Trạng thái bán hàng</label>
+            <select class="form-control" id="editStatus">
+              <option value="Còn hàng">Còn hàng</option>
+              <option value="Hết hàng">Hết hàng</option>
+              <option value="Ngừng bán">Ngừng bán</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Nút bấm lưu / hủy (subSave, subCancel) -->
+        <div class="form-actions-footer">
+          <button class="btn btn-secondary" id="subCancel" onclick="AppUI.cancelEditItem()">
+            Hủy bỏ
+          </button>
+          <button class="btn btn-primary" id="subSave" onclick="AppUI.saveEditItem()">
+            💾 Lưu thay đổi
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= GLOBAL MODAL CONFIRMATION ================= -->
+  <div class="modal-backdrop" id="modalBackdrop">
+    <div class="modal-dialog">
+      <h3 style="margin-bottom: 10px; font-size: 1.15rem;" id="modalDialogTitle">Xác nhận</h3>
+      <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 20px; line-height: 1.5;" id="modalDialogDesc">
+        Bạn có chắc chắn muốn thực hiện hành động này?
+      </p>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn btn-secondary" id="modalBtnCancel">Đóng</button>
+        <button class="btn btn-primary" id="modalBtnConfirm">Xác nhận</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TOAST CONTAINER ================= -->
+  <div class="toast-box" id="toastBox"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
