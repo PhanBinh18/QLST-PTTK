@@ -1,0 +1,62 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam actorStyle stick
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor #7BD3F7
+  BorderColor #000000
+}
+skinparam actor {
+  BackgroundColor #7BD3F7
+  BorderColor #000000
+}
+
+actor Member
+actor Customer
+actor Employee
+actor "Sales Staff" as SalesStaff
+actor "Warehouse Staff" as WarehouseStaff
+actor Manager
+
+Member <|-- Customer
+Member <|-- Employee
+Employee <|-- SalesStaff
+Employee <|-- WarehouseStaff
+Employee <|-- Manager
+
+rectangle "Electronics store management system" #7BD3F7 {
+  usecase "Login 7" as UC_Login
+  usecase "Change Password 7" as UC_ChangePwd
+  usecase "Register Account 7" as UC_Register
+  usecase "Search Items 7" as UC_Search
+  usecase "Order Online 7" as UC_OrderOnline
+  usecase "View Order History 7" as UC_OrderHistory
+  usecase "Sell at Counter 7" as UC_Sell
+  usecase "Manage Items 7" as UC_ManageItems
+  usecase "Manage Suppliers 7" as UC_ManageSuppliers
+  usecase "Import Goods 7" as UC_Import
+  usecase "Approve & Dispatch Order 7" as UC_Approve
+  usecase "View Statistics 7" as UC_Stats
+  usecase "Manage Employees 7" as UC_ManageEmp
+}
+
+Member -- UC_Login
+Member -- UC_ChangePwd
+
+Customer -- UC_Register
+Customer -- UC_Search
+Customer -- UC_OrderOnline
+Customer -- UC_OrderHistory
+
+SalesStaff -- UC_Sell
+
+WarehouseStaff -- UC_ManageItems
+WarehouseStaff -- UC_ManageSuppliers
+WarehouseStaff -- UC_Import
+WarehouseStaff -- UC_Approve
+
+Manager -- UC_Stats
+Manager -- UC_ManageEmp
+@enduml

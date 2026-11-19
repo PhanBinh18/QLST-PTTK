@@ -1,0 +1,25 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam package {
+  BackgroundColor #7BD3F7
+  BorderColor #000000
+}
+
+package "view" {
+  package "Member7" {}
+  package "Customer7" {}
+  package "WarehouseStaff7" {}
+  package "SaleStaff7" {}
+  package "Manager7" {}
+}
+
+package "DAO" {
+}
+
+package "model" {
+}
+
+view ..> DAO : <<use>>
+DAO ..> model : <<use>>
+@enduml

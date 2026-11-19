@@ -1,0 +1,191 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor #7BD3F7
+  HeaderBackgroundColor #7BD3F7
+  BorderColor #000000
+}
+
+class CustomerHomeUI7 {
+  -inKeyword
+  -subSearch
+}
+
+class SearchResultUI7 {
+  -inKeyword
+  -outItemList
+  -outKeyword
+  -outResultCount
+  -subViewDetail
+}
+
+class ItemDetailUI7 {
+  -outGeneralInfo
+  -subChooseSize
+  -outSpecifications
+  -outHighlightDescription
+  -outProductImage
+  -outStockStatus
+  -subAddToCart
+  -subViewCart
+}
+
+class CheckoutUI7 {
+  -outCartItems
+  -outItemCount
+  -inoutQuantity
+  -subDecreaseQty
+  -subIncreaseQty
+  -subRemoveItem
+  -outCostSummary
+  -inReceiverName
+  -inReceiverPhone
+  -inReceiverEmail
+  -inProvince
+  -inDistrict
+  -inAddressDetail
+  -inDeliveryNote
+  -subSubmitOrder
+}
+
+class OrderConfirmationUI7 {
+  -outSuccessStatus
+  -outOrderItems
+  -outOrderCode
+  -outOrderStatus
+  -outCostSummary
+  -outReceiverInfo
+  -subContinueShopping
+}
+
+class Brand7 {
+  -name
+  -country
+  -description
+  +getBrandByVariantId()
+}
+
+class Product7 {
+  -name
+  -modelCode
+  -description
+  +getProductByVariantId()
+}
+
+class Category7 {
+  -name
+  -description
+}
+
+class Specification7 {
+  -name
+  -unit
+}
+
+class CategorySpecification7 {
+  -displayOrder
+  -isRequired
+}
+
+class Variant7 {
+  -sku
+  -name
+  -price
+  -warrantyMonths
+  -status
+  -imageUrl
+  +searchVariant()
+  +getVariantDetail()
+}
+
+class VariantSpecification7 {
+  -specValue
+}
+
+class Inventory7 {
+  -quantity
+  -reservedQuantity
+  +checkStockAvailability()
+  +updateStockAvailability()
+}
+
+class OrderItem7 {
+  -quantity
+  -unitPrice
+  -subTotal
+}
+
+class Order7 {
+  -orderCode
+  -orderDate
+  -status
+  -totalAmount
+}
+
+class OrderOnline7 {
+  -receiverName
+  -receiverPhone
+  -receiverEmail
+  -shippingFee
+  -note
+  +createOrder()
+}
+
+class Customer7 {
+  -customerType
+}
+
+class Member7 {
+  -username
+  -password
+  -email
+  -phone
+  -role
+}
+
+class Address7 {
+  -streetAddress
+  -ward
+  -district
+  -city
+}
+
+class FullName7 {
+  -firstName
+  -middleName
+  -lastName
+}
+
+CustomerHomeUI7 -- SearchResultUI7
+SearchResultUI7 -- ItemDetailUI7
+ItemDetailUI7 -- CheckoutUI7
+CheckoutUI7 -- OrderConfirmationUI7
+
+SearchResultUI7 -- Variant7
+ItemDetailUI7 -- Variant7
+ItemDetailUI7 -- Brand7
+ItemDetailUI7 -- Product7
+CheckoutUI7 -- Inventory7
+CheckoutUI7 -- OrderOnline7
+OrderConfirmationUI7 -- OrderOnline7
+
+Brand7 -- Product7
+Category7 -- Product7
+Category7 o-- CategorySpecification7
+CategorySpecification7 o-- Specification7
+Product7 o-- Variant7
+Variant7 *-- Inventory7
+Variant7 *-- VariantSpecification7
+VariantSpecification7 -- Specification7
+Order7 *-- OrderItem7
+OrderItem7 -- Variant7
+Order7 <|-- OrderOnline7
+OrderOnline7 -- Customer7
+OrderOnline7 o-- Address7
+Member7 <|-- Customer7
+Member7 *-- FullName7
+Member7 o-- Address7
+@enduml

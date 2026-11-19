@@ -1,0 +1,213 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor #7BD3F7
+  HeaderBackgroundColor #7BD3F7
+  BorderColor #000000
+}
+
+abstract class Member7 {
+  -username
+  -password
+  -name
+  -email
+  -phone
+  -address
+  -role
+  -note
+}
+
+class FullName7 {
+  -firstName
+  -middleName
+  -lastName
+}
+
+class Address7 {
+  -streetAddress
+  -ward
+  -district
+  -city
+}
+
+abstract class Employee7 {
+  -position
+  -salary
+}
+
+class Manager7 {
+}
+
+class WarehouseStaff7 {
+}
+
+class SalesStaff7 {
+}
+
+class Customer7 {
+  -customerType
+}
+
+class Supplier7 {
+  -name
+  -taxCode
+  -phone
+  -email
+  -address
+}
+
+class SupplierStatistic7 {
+  -period
+  -totalImportCount
+  -totalImportValue
+}
+
+class ImportRecord7 {
+  -recordCode
+  -importDate
+  -totalCost
+}
+
+class ImportItem7 {
+  -quantity
+  -importPrice
+  -subTotal
+}
+
+abstract class Order7 {
+  -orderCode
+  -orderDate
+  -updatedAt
+  -status
+  -totalAmount
+}
+
+class OrderOnline7 {
+  -receiverName
+  -receiverPhone
+  -receiverEmail
+  -shippingFee
+  -shippingAddress
+  -note
+}
+
+class InstoreOrder7 {
+  -buyerName
+  -buyerPhone
+}
+
+class OrderItem7 {
+  -quantity
+  -unitPrice
+  -subTotal
+}
+
+class Invoice7 {
+  -invoiceCode
+  -createdDate
+  -totalAmount
+}
+
+class RevenueStatistic7 {
+  -period
+  -totalRevenue
+  -totalImportCost
+  -grossProfit
+}
+
+class Brand7 {
+  -name
+  -country
+  -description
+}
+
+class Category7 {
+  -name
+  -description
+}
+
+class Product7 {
+  -name
+  -modelCode
+  -description
+}
+
+class Variant7 {
+  -sku
+  -name
+  -price
+  -warrantyMonths
+  -status
+  -imageUrl
+}
+
+class ItemStatistic7 {
+  -period
+  -totalQuantitySold
+  -totalRevenue
+}
+
+class Inventory7 {
+  -quantity
+  -reservedQuantity
+}
+
+class Specification7 {
+  -name
+  -unit
+}
+
+class CategorySpecification7 {
+  -displayOrder
+  -isRequired
+}
+
+class VariantSpecification7 {
+  -specValue
+}
+
+' Kế thừa
+Member7 <|-- Employee7
+Member7 <|-- Customer7
+Employee7 <|-- Manager7
+Employee7 <|-- WarehouseStaff7
+Employee7 <|-- SalesStaff7
+
+Order7 <|-- OrderOnline7
+Order7 <|-- InstoreOrder7
+
+Supplier7 <|-- SupplierStatistic7
+Invoice7 <|-- RevenueStatistic7
+Variant7 <|-- ItemStatistic7
+
+' Thành phần & Kết tập & Liên kết
+Member7 *-- FullName7
+Member7 o-- Address7
+Supplier7 o-- Address7
+OrderOnline7 o-- Address7
+OrderOnline7 -- Customer7
+OrderOnline7 -- WarehouseStaff7
+InstoreOrder7 -- SalesStaff7
+InstoreOrder7 -- Customer7
+
+Order7 *-- OrderItem7
+OrderItem7 -- Variant7
+Invoice7 -- Order7
+
+ImportRecord7 -- WarehouseStaff7
+ImportRecord7 -- Supplier7
+ImportRecord7 *-- ImportItem7
+ImportItem7 -- Variant7
+
+Brand7 -- Product7
+Category7 -- Product7
+Category7 o-- CategorySpecification7
+CategorySpecification7 o-- Specification7
+Product7 o-- Variant7
+Variant7 *-- Inventory7
+Variant7 *-- VariantSpecification7
+VariantSpecification7 -- Specification7
+@enduml

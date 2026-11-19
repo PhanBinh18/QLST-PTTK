@@ -1,0 +1,15 @@
+@startuml
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam state {
+  BackgroundColor #7BD3F7
+  BorderColor #000000
+}
+
+[*] --> View_CustomerHomeUI7
+View_CustomerHomeUI7 --> View_SearchResultUI7 : [nhap tu khoa va tim kiem]
+View_SearchResultUI7 --> View_ItemDetailUI7 : [chon 1 mat hang]
+View_ItemDetailUI7 --> View_CheckoutUI7 : [them vao gio va xem gio hang]
+View_CheckoutUI7 --> View_OrderConfirmationUI7 : [nhap du thong tin va click dat hang]
+View_OrderConfirmationUI7 --> [*] : [chon tiep tuc mua sam]
+@enduml

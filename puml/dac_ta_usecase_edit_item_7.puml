@@ -1,0 +1,33 @@
+@startuml
+left to right direction
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam usecase {
+  BackgroundColor #7BD3F7
+  BorderColor #000000
+}
+skinparam actor {
+  BackgroundColor #7BD3F7
+  BorderColor #000000
+}
+
+actor Member
+actor Employee
+actor "Warehouse Staff" as WarehouseStaff
+Member <|-- Employee
+Employee <|-- WarehouseStaff
+
+usecase "Login 7" as UC_Login
+usecase "Staff Login 7" as UC_StaffLogin
+usecase "Edit Item Info 7" as UC_EditItem
+usecase "Search Item 7" as UC_SearchItem
+usecase "Update Item Details 7" as UC_UpdateItem
+
+Member -- UC_Login
+UC_Login <|-- UC_StaffLogin
+WarehouseStaff -- UC_EditItem
+
+UC_EditItem ..> UC_StaffLogin : <<Include>>
+UC_EditItem ..> UC_SearchItem : <<Include>>
+UC_EditItem ..> UC_UpdateItem : <<Include>>
+@enduml

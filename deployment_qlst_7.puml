@@ -19,24 +19,24 @@ node "<<device>>\nClient Machine" as client {
 node "<<device>>\nWeb Application Server" as webserver {
   node "<<executionEnvironment>>\nApache Tomcat Server" as tomcat {
     package "view" {
-      package "thanhvien" {
+      package "Member7" {
       }
-      package "khachhang" {
+      package "Customer7" {
       }
-      package "nhanvienkho" {
+      package "WarehouseStaff7" {
       }
-      package "nhanvienbanhang" {
+      package "SaleStaff7" {
       }
-      package "quanli" {
+      package "Manager7" {
       }
     }
-    package "dao" {
+    package "DAO" {
     }
     package "model" {
     }
 
-    view ..> dao : <<use>>
-    dao ..> model : <<use>>
+    view ..> DAO : <<use>>
+    DAO ..> model : <<use>>
   }
 }
 

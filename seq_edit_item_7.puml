@@ -51,7 +51,7 @@ deactivate CategoryDAO7
 
 ItemManagementUI7 -> BrandDAO7 : call
 activate BrandDAO7
-BrandDAO7 -> BrandDAO7 : getAllBrands()
+BrandDAO7 -> BrandDAO7 : getAllBrand()
 BrandDAO7 -> Brand7 : call
 activate Brand7
 Brand7 -> Brand7 : Brand()

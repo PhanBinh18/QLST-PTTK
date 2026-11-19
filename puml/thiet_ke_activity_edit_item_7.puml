@@ -1,0 +1,67 @@
+@startuml
+skinparam activity {
+  BackgroundColor #7BD3F7
+  BorderColor #000000
+  FontName Arial
+  FontSize 12
+}
+skinparam partition {
+  BorderColor #000000
+  BackgroundColor #7BD3F7
+  FontSize 13
+  FontStyle bold
+}
+
+(*) --> "Receive staff info"
+
+partition "Process at WarehouseHomeUI7" {
+  "Receive staff info" --> "Display UI"
+}
+
+"Display UI" --> [click manage item] "Receive staff info "
+
+partition "Process at ItemManagementUI7" {
+  "Receive staff info " --> "Get category list"
+  "Get category list" --> "Get brand list"
+  "Get brand list" --> "Search items"
+  "Search items" --> [data loaded] "Display UI "
+  "Display UI " --> [click search / reset] "Search items"
+}
+
+"Get category list" <--> "CategoryDAO7:
+getAllCategories()"
+"Get brand list" <--> "BrandDAO7:
+getAllBrand()"
+"Search items" <--> "VariantDAO7:
+searchVariant(name, categoryId, brandId, status)"
+
+"Display UI " --> [click edit] "Receive selected variantId"
+
+partition "Process at EditItemUI7" {
+  "Receive selected variantId" --> "Get brand"
+  "Get brand" --> "Get category"
+  "Get category" --> "Get product"
+  "Get product" --> "Get item detail"
+  "Get item detail" --> "Get specification list"
+  "Get specification list" --> [data loaded] "Display UI  "
+  "Display UI  " --> [click save] "Save changes"
+  "Save changes" --> [save completed] "Show complete message"
+}
+
+"Get brand" <--> "BrandDAO7:
+getBrandByVariantId()"
+"Get category" <--> "CategoryDAO7:
+getCategoryByVariantId()"
+"Get product" <--> "ProductDAO7:
+getProductByVariantId()"
+"Get item detail" <--> "VariantDAO7:
+getVariantDetail()"
+"Get specification list" <--> "CategoryDAO7:
+getSpecificationsByCategoryId()"
+"Save changes" <--> "ProductDAO7:
+updateProduct()"
+"Save changes" <--> "VariantDAO7:
+updateVariant()"
+
+"Show complete message" --> (*)
+@enduml

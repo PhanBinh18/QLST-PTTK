@@ -1,0 +1,118 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 12
+skinparam class {
+  BackgroundColor #7BD3F7
+  HeaderBackgroundColor #7BD3F7
+  BorderColor #000000
+}
+
+class WarehouseHomeUI7 {
+  -subManageItem
+}
+
+class ItemManagementUI7 {
+  -inSearchName
+  -inCategoryFilter
+  -inBrandFilter
+  -inStatusFilter
+  -subSearch
+  -subReset
+  -subAddNewItem
+  -outItemList
+  -outItemCount
+  -subEditItem
+}
+
+class EditItemUI7 {
+  -outSku
+  -inoutProductName
+  -inoutModelCode
+  -inoutDescription
+  -inoutVariantName
+  -inoutPrice
+  -inoutWarrantyMonths
+  -inoutStatus
+  -inoutSpecifications
+  -subSave
+  -subCancel
+}
+
+class Brand7 {
+  -name
+  -country
+  -description
+  +getAllBrand()
+  +getBrandByVariantId()
+}
+
+class Category7 {
+  -name
+  -description
+  +getAllCategories()
+  +getCategoryByVariantId()
+  +getSpecificationsByCategoryId()
+}
+
+class Product7 {
+  -name
+  -modelCode
+  -description
+  +getProductByVariantId()
+  +updateProduct()
+}
+
+class Variant7 {
+  -sku
+  -name
+  -price
+  -warrantyMonths
+  -status
+  -imageUrl
+  +searchVariant()
+  +getVariantDetail()
+  +updateVariant()
+}
+
+class Inventory7 {
+  -quantity
+  -reservedQuantity
+}
+
+class Specification7 {
+  -name
+  -unit
+}
+
+class CategorySpecification7 {
+  -displayOrder
+  -isRequired
+}
+
+class VariantSpecification7 {
+  -specValue
+}
+
+WarehouseHomeUI7 -- ItemManagementUI7
+ItemManagementUI7 -- EditItemUI7
+
+ItemManagementUI7 -- Category7
+ItemManagementUI7 -- Brand7
+ItemManagementUI7 -- Variant7
+
+EditItemUI7 -- Brand7
+EditItemUI7 -- Category7
+EditItemUI7 -- Product7
+EditItemUI7 -- Variant7
+
+Brand7 -- Product7
+Category7 -- Product7
+Category7 o-- CategorySpecification7
+CategorySpecification7 o-- Specification7
+Product7 o-- Variant7
+Variant7 *-- Inventory7
+Variant7 *-- VariantSpecification7
+VariantSpecification7 -- Specification7
+@enduml
