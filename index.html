@@ -38,6 +38,7 @@
           <option value="WarehouseHomeUI7">WarehouseHomeUI7 (Trang chủ Kho)</option>
           <option value="ItemManagementUI7">ItemManagementUI7 (Quản lý mặt hàng)</option>
           <option value="EditItemUI7">EditItemUI7 (Chỉnh sửa mặt hàng)</option>
+          <option value="AddItemUI7">AddItemUI7 (Thêm mặt hàng mới)</option>
         </optgroup>
       </select>
 
@@ -389,7 +390,7 @@
           <h2>Quản Lý Danh Sách Mặt Hàng</h2>
           <div class="subtitle">Tìm kiếm, lọc danh mục và cập nhật đơn giá, thời gian bảo hành</div>
         </div>
-        <button class="btn btn-secondary btn-sm" id="subAddNewItem" onclick="AppUI.toast('Chức năng thêm mới thuộc phân hệ Quản lý!', 'info')">
+        <button class="btn btn-primary btn-sm" id="subAddNewItem" onclick="AppUI.openAddItem()">
           + Thêm mặt hàng mới
         </button>
       </div>
@@ -484,37 +485,37 @@
           Chỉnh Sửa Thông Tin Mặt Hàng
         </h3>
 
-        <!-- Nhóm thông tin chỉ đọc của dòng sản phẩm -->
+        <!-- Nhóm thông tin dòng sản phẩm (inoutProductName, inoutModelCode, inoutDescription) -->
         <h4 style="font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 14px; letter-spacing: 0.5px;">
-          🏷️ Thông tin dòng sản phẩm (Chỉ đọc)
+          🏷️ Thông tin dòng sản phẩm
         </h4>
 
         <div class="edit-form-grid" style="margin-bottom: 24px;">
           <div class="form-group">
-            <label>Mã SKU mặt hàng</label>
+            <label>Mã SKU mặt hàng (Chỉ đọc - outSku)</label>
             <div class="readonly-box" id="editOutSku" style="font-family: monospace; font-weight: 700;">65UT7002XG</div>
           </div>
           <div class="form-group">
-            <label>Dòng sản phẩm</label>
-            <div class="readonly-box" id="editProductName">Google TV Coex 4K UHD</div>
+            <label>Dòng sản phẩm (inoutProductName) <span style="color:red">*</span></label>
+            <input type="text" class="form-control" id="editProductName" value="Google TV Coex 4K UHD">
           </div>
           <div class="form-group">
-            <label>Mã Model chung</label>
-            <div class="readonly-box" id="editModelCode">UT7002XG</div>
+            <label>Mã Model chung (inoutModelCode) <span style="color:red">*</span></label>
+            <input type="text" class="form-control" id="editModelCode" value="UT7002XG">
           </div>
           <div class="form-group">
-            <label>Mô tả dòng sản phẩm</label>
-            <div class="readonly-box" id="editDescription">Thiết kế tràn viền 3 cạnh, hỗ trợ trợ lý Google Assistant.</div>
+            <label>Mô tả dòng sản phẩm (inoutDescription)</label>
+            <input type="text" class="form-control" id="editDescription" value="Thiết kế tràn viền 3 cạnh, hỗ trợ trợ lý Google Assistant.">
           </div>
         </div>
 
         <!-- Bảng thông số kỹ thuật (inoutSpecifications) -->
         <div style="margin-bottom: 24px;">
           <label style="font-size: 0.88rem; font-weight: 600; margin-bottom: 8px; display: block;">
-            ⚙️ Quy cách thông số kỹ thuật:
+            ⚙️ Quy cách thông số kỹ thuật (inoutSpecifications):
           </label>
           <table class="specs-table" id="editSpecsTable" style="border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;">
-            <!-- Render động -->
+            <!-- Render động các ô input thông số -->
           </table>
         </div>
 
@@ -558,6 +559,112 @@
           </button>
           <button class="btn btn-primary" id="subSave" onclick="AppUI.saveEditItem()">
             💾 Lưu thay đổi
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 9: AddItemUI7 (Thêm mặt hàng mới) ================= -->
+    <section id="AddItemUI7" class="ui-view">
+      <nav class="view-breadcrumb">
+        <a onclick="AppUI.showView('WarehouseHomeUI7')">Trang chủ Kho</a>
+        <span>›</span>
+        <a onclick="AppUI.showView('ItemManagementUI7')">Quản lý mặt hàng</a>
+        <span>›</span>
+        <span>Thêm mặt hàng mới</span>
+      </nav>
+
+      <div class="card">
+        <h3 style="font-size: 1.25rem; margin-bottom: 18px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+          Thêm Mặt Hàng Mới Vào Kho (AddItemUI7)
+        </h3>
+
+        <h4 style="font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 14px; letter-spacing: 0.5px;">
+          🏷️ 1. Thông tin phân loại & dòng sản phẩm
+        </h4>
+
+        <div class="edit-form-grid" style="margin-bottom: 24px;">
+          <div class="form-group">
+            <label>Danh mục mặt hàng (inCategoryId) <span style="color:red">*</span></label>
+            <select class="form-control" id="addCategory" onchange="AppUI.renderAddCategorySpecs()">
+              <option value="Tivi">Tivi</option>
+              <option value="Tủ lạnh">Tủ lạnh</option>
+              <option value="Máy giặt">Máy giặt</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Hãng sản xuất (inBrandId) <span style="color:red">*</span></label>
+            <select class="form-control" id="addBrand">
+              <option value="Coex">Coex</option>
+              <option value="Samsung">Samsung</option>
+              <option value="Sony">Sony</option>
+              <option value="Panasonic">Panasonic</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tên dòng sản phẩm (inProductName) <span style="color:red">*</span></label>
+            <input type="text" class="form-control" id="addProductName" placeholder="Ví dụ: Google TV Coex 4K UHD">
+          </div>
+          <div class="form-group">
+            <label>Mã Model chung (inModelCode) <span style="color:red">*</span></label>
+            <input type="text" class="form-control" id="addModelCode" placeholder="Ví dụ: UT7002XG">
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label>Mô tả dòng sản phẩm (inDescription)</label>
+            <input type="text" class="form-control" id="addDescription" placeholder="Mô tả tính năng nổi bật của dòng sản phẩm...">
+          </div>
+        </div>
+
+        <h4 style="font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 14px; letter-spacing: 0.5px;">
+          💰 2. Thông tin biến thể mặt hàng mới
+        </h4>
+
+        <div class="edit-form-grid" style="margin-bottom: 24px;">
+          <div class="form-group">
+            <label>Mã SKU định danh (inSku) <span style="color:red">*</span></label>
+            <input type="text" class="form-control" id="addSku" placeholder="Ví dụ: 75UT7002XG">
+          </div>
+          <div class="form-group">
+            <label>Tên hiển thị biến thể (inVariantName) <span style="color:red">*</span></label>
+            <input type="text" class="form-control" id="addVariantName" placeholder="Ví dụ: Google TV Coex 4K UHD 75 inch 75UT7002XG">
+          </div>
+          <div class="form-group">
+            <label>Đơn giá niêm yết (VNĐ - inPrice) <span style="color:red">*</span></label>
+            <input type="number" class="form-control" id="addPrice" step="10000" placeholder="Ví dụ: 15990000">
+          </div>
+          <div class="form-group">
+            <label>Thời gian bảo hành (tháng - inWarrantyMonths) <span style="color:red">*</span></label>
+            <input type="number" class="form-control" id="addWarrantyMonths" value="24" min="1">
+          </div>
+          <div class="form-group">
+            <label>Số lượng tồn kho ban đầu (inQuantity)</label>
+            <input type="number" class="form-control" id="addStock" value="10" min="0">
+          </div>
+          <div class="form-group">
+            <label>Trạng thái kinh doanh (inStatus)</label>
+            <select class="form-control" id="addStatus">
+              <option value="Còn hàng">Còn hàng</option>
+              <option value="Hết hàng">Hết hàng</option>
+              <option value="Ngừng bán">Ngừng bán</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 24px;">
+          <label style="font-size: 0.88rem; font-weight: 600; margin-bottom: 8px; display: block;">
+            ⚙️ 3. Nhập giá trị thông số kỹ thuật theo danh mục (inSpecifications):
+          </label>
+          <table class="specs-table" id="addSpecsTable" style="border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;">
+            <!-- Render động theo danh mục chọn -->
+          </table>
+        </div>
+
+        <div class="form-actions-footer">
+          <button class="btn btn-secondary" id="subCancelAdd" onclick="AppUI.showView('ItemManagementUI7')">
+            Hủy bỏ
+          </button>
+          <button class="btn btn-primary" id="subSaveNewItem" onclick="AppUI.saveNewItem()">
+            💾 Lưu mặt hàng mới
           </button>
         </div>
       </div>

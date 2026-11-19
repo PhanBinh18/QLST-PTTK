@@ -342,6 +342,8 @@ const AppUI = {
       this.renderWarehouseHome();
     } else if (viewId === "ItemManagementUI7") {
       this.renderItemManagementTable();
+    } else if (viewId === "AddItemUI7") {
+      this.renderAddCategorySpecs();
     }
   },
 
@@ -885,18 +887,20 @@ const AppUI = {
 
     // outSku
     document.getElementById("editOutSku").textContent = item.sku;
-    document.getElementById("editProductName").textContent = item.productLine || item.name;
-    document.getElementById("editModelCode").textContent = item.modelCode || item.sku;
-    document.getElementById("editDescription").textContent = item.description || "Mô tả dòng sản phẩm";
+    document.getElementById("editProductName").value = item.productLine || item.name;
+    document.getElementById("editModelCode").value = item.modelCode || item.sku;
+    document.getElementById("editDescription").value = item.description || "Mô tả dòng sản phẩm";
 
-    // inoutSpecifications
+    // inoutSpecifications (editable input fields)
     const specsTable = document.getElementById("editSpecsTable");
     if (specsTable) {
       const specs = item.specs || { "Đặc tính": "Chính hãng", "Bảo hành": `${item.warrantyMonths} tháng` };
       specsTable.innerHTML = Object.entries(specs).map(([k, v]) => `
         <tr>
-          <td>${k}</td>
-          <td>${v}</td>
+          <td style="width: 35%; font-weight: 600;">${k}</td>
+          <td>
+            <input type="text" class="form-control edit-spec-input" data-spec-key="${k}" value="${v}">
+          </td>
         </tr>
       `).join("");
     }
@@ -916,10 +920,19 @@ const AppUI = {
     const item = DB.getProductBySku(this.currentSelectedSku);
     if (!item) return;
 
+    const productLine = document.getElementById("editProductName").value.trim();
+    const modelCode = document.getElementById("editModelCode").value.trim();
+    const description = document.getElementById("editDescription").value.trim();
     const variantName = document.getElementById("editVariantName").value.trim();
     const priceVal = parseFloat(document.getElementById("editPrice").value);
     const warrantyVal = parseInt(document.getElementById("editWarrantyMonths").value, 10);
     const statusVal = document.getElementById("editStatus").value;
+
+    const updatedSpecs = {};
+    document.querySelectorAll(".edit-spec-input").forEach(inp => {
+      const key = inp.getAttribute("data-spec-key");
+      if (key) updatedSpecs[key] = inp.value.trim();
+    });
 
     let valid = true;
 
@@ -942,16 +955,20 @@ const AppUI = {
       return;
     }
 
-    // Update in database
+    // Update in database (ProductDAO7.updateProduct & VariantDAO7.updateVariant)
     DB.updateProduct({
       sku: item.sku,
+      productLine: productLine || item.productLine,
+      modelCode: modelCode || item.modelCode,
+      description: description || item.description,
       name: variantName || item.name,
       price: priceVal,
       warrantyMonths: warrantyVal,
-      status: statusVal
+      status: statusVal,
+      specs: Object.keys(updatedSpecs).length > 0 ? updatedSpecs : item.specs
     });
 
-    this.toast(`Lưu thành công thông tin mặt hàng ${item.sku}!`, "success");
+    this.toast(`Lưu thay đổi thành công cho mặt hàng ${item.sku}!`, "success");
     this.showView("ItemManagementUI7");
   },
 
@@ -963,6 +980,88 @@ const AppUI = {
         this.showView("ItemManagementUI7");
       }
     );
+  },
+
+  // View: AddItemUI7 (Thêm mặt hàng mới)
+  openAddItem() {
+    this.showView("AddItemUI7");
+    this.renderAddCategorySpecs();
+  },
+
+  renderAddCategorySpecs() {
+    const cat = document.getElementById("addCategory")?.value || "Tivi";
+    const specsByCat = {
+      "Tivi": ["Kích cỡ màn hình", "Độ phân giải", "Hệ điều hành", "Công nghệ hình ảnh", "Cổng kết nối"],
+      "Tủ lạnh": ["Dung tích sử dụng", "Công nghệ tiết kiệm điện", "Công nghệ làm lạnh", "Kháng khuẩn khử mùi"],
+      "Máy giặt": ["Khối lượng giặt", "Động cơ", "Chương trình giặt"]
+    };
+    const specNames = specsByCat[cat] || specsByCat["Tivi"];
+    const table = document.getElementById("addSpecsTable");
+    if (!table) return;
+    table.innerHTML = specNames.map((k, idx) => `
+      <tr>
+        <td style="width: 35%; font-weight: 600;">${idx + 1}. ${k}</td>
+        <td>
+          <input type="text" class="form-control add-spec-input" data-spec-key="${k}" placeholder="Nhập ${k.toLowerCase()}...">
+        </td>
+      </tr>
+    `).join("");
+  },
+
+  saveNewItem() {
+    const category = document.getElementById("addCategory").value;
+    const brand = document.getElementById("addBrand").value;
+    const productLine = document.getElementById("addProductName").value.trim();
+    const modelCode = document.getElementById("addModelCode").value.trim();
+    const description = document.getElementById("addDescription").value.trim();
+    const sku = document.getElementById("addSku").value.trim();
+    const name = document.getElementById("addVariantName").value.trim();
+    const price = parseFloat(document.getElementById("addPrice").value);
+    const warrantyMonths = parseInt(document.getElementById("addWarrantyMonths").value, 10);
+    const stock = parseInt(document.getElementById("addStock").value, 10) || 0;
+    const status = document.getElementById("addStatus").value;
+
+    if (!sku || !name || !productLine) {
+      this.toast("Vui lòng nhập đầy đủ Mã SKU, Tên mặt hàng và Tên dòng sản phẩm!", "error");
+      return;
+    }
+    if (isNaN(price) || price <= 0 || isNaN(warrantyMonths) || warrantyMonths <= 0) {
+      this.toast("Đơn giá niêm yết và Thời gian bảo hành phải lớn hơn 0!", "error");
+      return;
+    }
+    if (DB.getProductBySku(sku)) {
+      this.toast(`Mã SKU "${sku}" đã tồn tại trong kho!`, "error");
+      return;
+    }
+
+    const specs = {};
+    document.querySelectorAll(".add-spec-input").forEach(inp => {
+      const key = inp.getAttribute("data-spec-key");
+      if (key) specs[key] = inp.value.trim() || "Tiêu chuẩn chính hãng";
+    });
+
+    const products = DB.getProducts();
+    products.push({
+      sku,
+      modelCode: modelCode || sku,
+      name,
+      productLine,
+      category,
+      brand,
+      price,
+      warrantyMonths,
+      status,
+      stock: Math.max(0, stock),
+      size: specs["Kích cỡ màn hình"] || specs["Dung tích sử dụng"] || specs["Khối lượng giặt"] || "Tiêu chuẩn",
+      sizesAvailable: [specs["Kích cỡ màn hình"] || "Tiêu chuẩn"],
+      image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=600&auto=format&fit=crop&q=80",
+      specs,
+      description: description || "Sản phẩm điện máy chính hãng bảo hành toàn quốc."
+    });
+    DB.setProducts(products);
+
+    this.toast(`Thêm mặt hàng mới "${name}" (${sku}) thành công!`, "success");
+    this.showView("ItemManagementUI7");
   }
 };
 
