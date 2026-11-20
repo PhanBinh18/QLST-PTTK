@@ -1,0 +1,11 @@
+# Word temp & lock files
+~$*
+~WRL*.tmp
+*.tmp
+
+# IDE & build artifacts
+.idea/
+*.iml
+target/
+__pycache__/
+*.pyc
