@@ -8,7 +8,11 @@ public class DAO {
 
     public DAO() {
         if (con == null) {
-            String dbUrl = "jdbc:mysql://localhost:3306/qlst_db?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8";
+            String host = System.getenv("DB_HOST");
+            if (host == null || host.trim().isEmpty()) {
+                host = "localhost";
+            }
+            String dbUrl = "jdbc:mysql://" + host + ":3306/qlst_db?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&characterEncoding=UTF-8";
             String dbClass = "com.mysql.cj.jdbc.Driver";
             try {
                 Class.forName(dbClass);
